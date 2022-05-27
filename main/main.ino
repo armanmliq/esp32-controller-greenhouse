@@ -8,7 +8,6 @@
 #include <addons/TokenHelper.h> 
 #include <addons/RTDBHelper.h> 
 
-
 #define WIFI_SSID "AMI"
 #define WIFI_PASSWORD "admin.admin" 
 #define API_KEY "AIzaSyBwu8sXyJOM-uu-NB9kfjNkIrnDkMKPoco" 
@@ -25,7 +24,7 @@ FirebaseConfig config;
 unsigned long sendDataPrevMillis = 0;
 String MainPathsetParameter = "/users/OoQcNgqaBqchpWRjwe9PRw6n3tb2/set_parameter/";
 String MainPathScheduler = "/users/OoQcNgqaBqchpWRjwe9PRw6n3tb2/scheduler";
-String childPathSetParameter[9] = {"set_dosing_pump_ppm", "set_humidity","set_mode_ppm","set_ph","set_ppm", "set_mode_irigasi" ,"set_mode_ph","scheduler_ppm_str", "scheduler_jadwal_penyiraman","set_dosing_pump_ph_down","set_dosing_pump_ph_up"};
+String childPathSetParameter[11] = {"set_dosing_pump_ppm", "set_humidity","set_mode_ppm","set_ph","set_ppm", "set_mode_irigasi" ,"set_mode_ph","scheduler_ppm_str", "scheduler_jadwal_penyiraman","set_dosing_pump_ph_down","set_dosing_pump_ph_up"};
 
 //set parameter variable
 String scheduler_penyiraman,scheduler_ppm,set_dosing_pump_phDown,set_dosing_pump_phUp,set_mode_ph,set_mode_ppm,set_ph,set_ppm,set_dosing_pump_ppm,set_dosing_pump_ph_down,set_dosing_pump_ph_up = "";
@@ -68,7 +67,6 @@ void setup()
   if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter))
     Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());
   Firebase.setMultiPathStreamCallback(streamParameter, streamCallbackParameter, streamTimeoutCallbackParameter);    
-  
 }
 
 void loop()
