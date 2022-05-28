@@ -31,6 +31,7 @@ String scheduler_penyiraman,scheduler_ppm,set_dosing_pump_phDown,set_dosing_pump
 
 #include "stream_firebase.h"
 
+
 void setup()
 {
 
@@ -46,7 +47,6 @@ void setup()
   Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
   Serial.println();
-
   Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
 
   /* Assign the api key (required) */
@@ -74,23 +74,10 @@ void loop()
   if (Firebase.ready() && (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
-
     Serial.print("\nSet json...");
-
     FirebaseJson json;
-
     for (size_t i = 0; i < 10; i++)
-    {
-//      json.set("node1/data", "v1");
-//      json.set("node1/num", count);
-//      json.set("node2/data", "v2");
-//      json.set("node2/num", count * 3);
-//       The response is ignored in this async function, it may return true as long as the connection is established.
-//       The purpose for this async function is to set, push and update data instantly.
-//      Firebase.setJSONAsync(fbdo, parentPath, json);
-//      count++;
-    }
-
+    {}
     Serial.println("ok\n");
   }
 }
