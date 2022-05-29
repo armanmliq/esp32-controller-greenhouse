@@ -1,4 +1,3 @@
-char* input ="";
 #include "json.h"
 void streamCallbackParameter(MultiPathStreamData stream)
 {

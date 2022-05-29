@@ -28,14 +28,26 @@ String childPathSetParameter[11] = {"set_dosing_pump_ppm", "set_humidity","set_m
 
 //set parameter variable
 String scheduler_penyiraman,scheduler_ppm,set_dosing_pump_phDown,set_dosing_pump_phUp,set_mode_ph,set_mode_ppm,set_ph,set_ppm,set_dosing_pump_ppm,set_dosing_pump_ph_down,set_dosing_pump_ph_up = "";
+byte _indexSchedulePpm = 0;
+byte _indexSchedulePenyiraman = 0;
+float targetPpm;
+float targetPh;
+
+bool RelayPhUp,RelayPhDown,RelayPpm;
+byte RelayPhUpPin= 1;
+byte RelayPhDownPin = 2;
+byte RelayPpmPin = 3;
 
 #include "stream_firebase.h"
 
-
 void setup()
 {
-
+  pinMode(RelayPhUpPin,OUTPUT);
+  pinMode(RelayPhDownPin,OUTPUT);
+  pinMode(RelayPpmPin,OUTPUT);    
+  
   Serial.begin(115200);
+  
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to Wi-Fi");
   while (WiFi.status() != WL_CONNECTED)
@@ -43,6 +55,7 @@ void setup()
     Serial.print(".");
     delay(300);
   }
+  
   Serial.println();
   Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
@@ -61,6 +74,8 @@ void setup()
   config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
+
+  
 #if defined(ESP8266)
   stream.setBSSLBufferSize(2048 /* Rx in bytes, 512 - 16384 */, 512 /* Tx in bytes, 512 - 16384 */);
 #endif

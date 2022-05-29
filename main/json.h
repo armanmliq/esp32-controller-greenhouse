@@ -1,36 +1,43 @@
 #include <ArduinoJson.h>
+#include "parsing_jadwal_ppm.h"
+StaticJsonDocument<1024> doc;
 
-struct Departure {
-  char destination[32];
-  char departure[32];
-  int  deviation;
-} depart;
-
-struct Departure dep_arr[3];
-String ListDateFrom[] = {};
 void JsonPreprocessor(String json)
 {
-  StaticJsonDocument<1024> doc;
-  //String input = "{\"ResponseData\":{\"Metros\":[{\"Destination\":\"Destination_1\",\"ExpectedDateTime\":\"2021-04-29T05:15:30\"},{\"Destination\":\"Destination_2\",\"ExpectedDateTime\":\"2021-04-29T05:21:30\"},{\"Destination\":\"Destination_2\",\"ExpectedDateTime\":\"2021-04-29T05:30:30\"},{\"Destination\":\"Destination_1\",\"ExpectedDateTime\":\"2021-04-29T05:36:30\"}]}}";
-  //String input = "{\"data\":[{\"id\":\"2022-05-28 17:14:52.266983\",\"dateFrom\":\"2022-06-10\",\"dateTo\":\"2022-06-17\",\"ppm\":\"55\"}]}";
-  //Serial.println(String(json.length()) + " " + json);
-  //Serial.println(String(input.length()) + " " + input);
-  //remove slash
+  //remove unwanted slash
   json.replace("\\","");
+
+  //proccess json and check error
   DeserializationError error = deserializeJson(doc, json);
   if (error) {
     Serial.print("deserializeJson() failed: ");
     Serial.println(error.c_str());
     return;
   }
-  byte index = 0;
+
+  //data isNotEmpty? start clear old data
+    if(json.indexOf("dateFrom") != -1){
+      _indexSchedulePpm = 0;
+      listStartDate = "";
+      listEndDate = "";
+      listPpm ="";      
+    } 
+
+  //LOOPING ITERABLE JSON
   for (JsonObject Data : doc["data"].as<JsonArray>()) {
-    index++;
-    String dateFrom = Data["dateFrom"];
-    String dateTo = Data["dateTo"];
-    ListDateFrom[index] = dateFrom;
-    Serial.println(dateFrom);
+    _indexSchedulePpm ++;
+    String dateStart = Data["dateFrom"];
+    String dateEnd = Data["dateTo"]; 
+    String ppm = Data["ppm"];
+    parseDateStart(dateStart);
+    parseDateEnd(dateEnd);
+    parsePpm(ppm);
   }
 
-
+  //Proccess to check data and control output
+  //Serial.println("total index = "+ String(_index));
+  //Serial.println("parseDateStart = "+ listStartDate);
+  //Serial.println("parseDateEnd = "+ listEndDate);
+  //Serial.println("ppm = "+ listPpm);
+  CheckSchedulePpm();
 }
