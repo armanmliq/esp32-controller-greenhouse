@@ -7,16 +7,20 @@ void streamCallbackParameter(MultiPathStreamData stream)
     if (stream.get(childPathSetParameter[i]))
     { 
       String path = stream.dataPath;
-      Serial.printf("path: %s, event: %s, type: %s, value: %s%s", stream.dataPath.c_str(), stream.eventType.c_str(), stream.type.c_str(), stream.value.c_str(), i < numChild - 1 ? "\n" : "");
-      if(path == "scheduler_ppm_str"){
-            JsonPreprocessor(stream.value);        
+   Serial.printf("path: %s, event: %s, type: %s, value: %s%s", stream.dataPath.c_str(), stream.eventType.c_str(), stream.type.c_str(), stream.value.c_str(), i < numChild - 1 ? "\n" : "");
+      //cek_scheduler_ppm
+      if(path.indexOf("scheduler_ppm_str") > -1){
+            JsonPreprocessorSchedulePpm(stream.value);        
+        }else if(path.indexOf("scheduler_jadwal_penyiraman") > -1){
+            //Serial.println("><><>scheduler_jadwal_penyiraman<><><>");
+            JsonPreprocessorSchedulePenyiraman(stream.value);        
         }else{
-          Serial.println("wrong path!! " + path);
+          Serial.println("wrong path!! " +String( path.indexOf("scheduler_jadwal_penyiraman")));
         }
     }
   }
-  Serial.println();
-  Serial.printf("Received stream payload size: %d (Max. %d)\n\n", stream.payloadLength(), stream.maxPayloadLength());
+//  Serial.println();
+//  Serial.printf("Received stream payload size: %d (Max. %d)\n\n", stream.payloadLength(), stream.maxPayloadLength());
 }
 
 void streamTimeoutCallbackParameter(bool timeout)

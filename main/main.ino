@@ -89,10 +89,6 @@ void loop()
   if (Firebase.ready() && (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
-    Serial.print("\nSet json...");
     FirebaseJson json;
-    for (size_t i = 0; i < 10; i++)
-    {}
-    Serial.println("ok\n");
   }
 }
