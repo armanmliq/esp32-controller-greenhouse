@@ -1,6 +1,5 @@
 #include "json.h"
-#define WIFI_SSID "AMI"
-#define WIFI_PASSWORD "admin.admin" 
+
 #define API_KEY "AIzaSyBwu8sXyJOM-uu-NB9kfjNkIrnDkMKPoco" 
 #define DATABASE_URL "https://esp32-7fe29-default-rtdb.firebaseio.com"
 #define USER_EMAIL "armanmaliq92@gmail.com"
@@ -18,6 +17,7 @@ FirebaseConfig config;
 void proccessNoJson(String _data){
   Serial.println("data: "+ _data);
 }
+
 
 void streamCallbackParameter(MultiPathStreamData stream)
 {
@@ -71,14 +71,20 @@ void streamCallbackParameter(MultiPathStreamData stream)
     }
   } 
 }
-
-void streamTimeoutCallbackParameter(bool timeout)
+ void streamTimeoutCallbackParameter(bool timeout)
 {
   if (timeout)
     Serial.println("stream timed out, resuming...\n");
   if (!streamParameter.httpConnected())
     Serial.printf("error code: %d, reason: %s\n\n", streamParameter.httpCode(), streamParameter.errorReason().c_str());
 }
+
+void begin_stream(){
+    if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter))
+    Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());
+  Firebase.setMultiPathStreamCallback(streamParameter, streamCallbackParameter, streamTimeoutCallbackParameter);
+}
+
 
 void setupFirebase(){
   config.api_key = API_KEY;
@@ -91,8 +97,6 @@ void setupFirebase(){
 #if defined(ESP8266)
   stream.setBSSLBufferSize(2048 /* Rx in bytes, 512 - 16384 */, 512 /* Tx in bytes, 512 - 16384 */);
 #endif
-  if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter))
-    Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());
-  Firebase.setMultiPathStreamCallback(streamParameter, streamCallbackParameter, streamTimeoutCallbackParameter);
-  
+
+  begin_stream();
 }
