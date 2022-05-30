@@ -1,0 +1,30 @@
+#include <EEPROM.h>
+
+int addrSaveSchedulePpm = 0;
+int addrSaveSchedulePenyiraman = addrSaveSchedulePpm + sizeof(String);
+int addrSaveTargetPpm = addrSaveSchedulePenyiraman + sizeof(String);
+int addrSaveTargetPh = addrSaveTargetPpm + sizeof(String);
+
+void saveSchedulePpm(String _data)
+{
+ EEPROM.put(addrSaveSchedulePpm,_data); 
+ EEPROM.commit();
+}
+
+void saveSchedulePenyiraman(String _data)
+{
+ EEPROM.put(addrSaveSchedulePenyiraman, _data);   
+ EEPROM.commit();
+}
+
+void saveTargetPpm(String _data)
+{
+ EEPROM.get(addrSaveTargetPpm, _data);   
+ EEPROM.commit();
+}
+
+void saveTargetPh(String _data)
+{
+ EEPROM.get(addrSaveTargetPh, _data);   
+ EEPROM.commit();
+}

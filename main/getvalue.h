@@ -1,8 +1,6 @@
 //parsing separate comma
 String getValue(String data, char separator, int index1)
-{
-//  Serial.println("data=" + data);
-//  Serial.println("index=" + String(index1));
+{  
   int found = 0;
   int strIndex[] = {0, -1};
   int maxIndex = data.length()-1;

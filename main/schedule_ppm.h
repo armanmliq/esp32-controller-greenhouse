@@ -1,13 +1,13 @@
-#include "TimeLib.h"
 
+byte _indexSchedulePpm = 0;
 tmElements_t time_ppm;  // time elements structure
 time_t unix_start_ppm; // a timestamp
 //comma separated 
 String listEpochStartPpm;
 String listEpochEndPpm;
 String listPpm;
-long epochNow = 1653857164;
-
+float targetPpm;
+float targetPh;
 
 //parsing start date
 void parseDateStart(String date) 
