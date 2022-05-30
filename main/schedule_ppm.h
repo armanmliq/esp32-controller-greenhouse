@@ -62,6 +62,7 @@ bool isInRangePpm(String epochStartDateStr,String epochEndDateStr, String ppm){
 
 //check if any aktif date, change target ppm
 void CheckSchedulePpm(){
+    Serial.println("checking schedulle ppm");
     for(int i=0; i< _indexSchedulePpm; i++){
     String epochStart= getValue(listEpochStartPpm,',', i);
     String epochEnd= getValue(listEpochEndPpm,',', i);
@@ -71,7 +72,6 @@ void CheckSchedulePpm(){
     targetPpm = _ppm.toFloat();
    }
     
-    Serial.println(String(i)+" inrange?: " + isInRangePpm(epochStart, epochEnd, _ppm));    
-    Serial.println(String(i)+" " +String(_ppm));
+    Serial.println(String(i) + ":"+ isInRangePpm(epochStart, epochEnd, _ppm));    
   }
 }

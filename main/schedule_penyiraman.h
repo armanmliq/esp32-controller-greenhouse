@@ -8,9 +8,9 @@ time_t unix_end_penyiraman;
 
 void parseSchedulePenyiraman(String date, String _lamaPenyiraman) 
 {
-    int _day = 29;
-    int _month = 5;
-    int _year = 2022;
+    int _day = day(timeClient.getEpochTime() + offsetGmt);
+    int _month = month(timeClient.getEpochTime() + offsetGmt);
+    int _year = year(timeClient.getEpochTime() + offsetGmt);
     int _hour = date.substring(10, 12).toInt();
     int _min = date.substring(13, 15).toInt();
     
@@ -40,7 +40,8 @@ bool isInRangePenyiraman(String epochStartDateStr,String epochEndDateStr){
 
 //check if any aktif date, change target ppm
 void CheckSchedulePenyiraman()
-{
+{   
+    Serial.println("checking schedulle penyiraman");
     for(int i=0; i< _indexSchedulePenyiraman; i++){
     String epochStart= getValue(listEpochStartDatePenyiraman,',', i);
     String epochEnd= getValue(listEpochEndDatePenyiraman,',', i);
