@@ -72,8 +72,8 @@ void loop()
 { 
   handleGrafik();
   serial();
-//  CheckSchedulePenyiraman();
-//  CheckSchedulePpm();
-//  updateNtp();
+  //  CheckSchedulePenyiraman();
+  //  CheckSchedulePpm();
+  updateNtp();
   delay(1000); 
 }

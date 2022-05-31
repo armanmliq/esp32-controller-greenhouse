@@ -2,27 +2,20 @@ void serial(){
   if(Serial.available() > 0)
   {
     char dat = Serial.read();
-    if(dat == 'x')
+    if(dat == 'a')
     {
-      coreUpdateAllGrafik();
+      updateAllGrafik();
+//      coreUpdateAllGrafik();
       Serial.println("response");
     }
   
-   if(dat == 'a')
+   if(dat == 'd')
     {
-      coreDeleteUpGrafik();
+//      deleteGrafikDataLastOneDay();
+      coreDeleteGrafik();
     }
     
-    if(dat == 'b')
-    {
-
-    } 
-    
-    if(dat == 'c')
-    {
-
-    }
-  
+   
 
 
  }
