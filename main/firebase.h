@@ -6,7 +6,7 @@
 #define USER_PASSWORD "armanmaliq92@gmail.com"
 
 unsigned long sendDataPrevMillis = 0;
-String MainPathsetParameter = "/users/OoQcNgqaBqchpWRjwe9PRw6n3tb2/set_parameter/";
+String MainPathsetParameter = "/users/" + uid + "/set_parameter/";
 String childPathSetParameter[11] = {"set_dosing_pump_ppm", "set_humidity","set_mode_ppm","set_ph","set_ppm", "set_mode_irigasi" ,"set_mode_ph","scheduler_ppm_str", "scheduler_jadwal_penyiraman","set_dosing_pump_ph_down","set_dosing_pump_ph_up"};
 
 FirebaseData fbdo;

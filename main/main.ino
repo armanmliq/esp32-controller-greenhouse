@@ -7,13 +7,18 @@
 #endif
 #include <addons/TokenHelper.h> 
 #include <addons/RTDBHelper.h>
+
+
+String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 #define WIFI_SSID "AMI"
-#define WIFI_PASSWORD "admin.admin"
-  
+#define WIFI_PASSWORD "admin.admin" 
+
+
 unsigned int offsetGmt = 3600 * 7;
 
 //set parameter variable
 String schPenyiramanStr,schPpmStr,manualPhDownStr,manualPhUpStr,modePhStr,modePpmStr,targetPhStr,targetPpmStr,manualPpmUpStr = "";
+float sensPh,sensPpm,sensHumidity,sensTemperature;
 
 bool RelayPhUp,RelayPhDown,RelayPpm;
 byte RelayPhUpPin= 1;
@@ -26,7 +31,8 @@ String myData ="";
 #include "firebase.h" 
 #include "on_disconnect.h" 
 #include "preferences_start.h" 
-
+#include "push_grafik_firebase.h"
+#include "at_serial.h" 
 void setup()
 {
   preferences.begin("my-app", false); 
@@ -59,13 +65,15 @@ void setup()
 
   setupFirebase();
   updateNtp();    
-  
+  configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");
 }
 
 void loop()
 { 
-  CheckSchedulePenyiraman();
-  CheckSchedulePpm();
-  updateNtp();
+  handleGrafik();
+  serial();
+//  CheckSchedulePenyiraman();
+//  CheckSchedulePpm();
+//  updateNtp();
   delay(1000); 
 }
