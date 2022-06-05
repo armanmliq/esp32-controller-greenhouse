@@ -63,8 +63,6 @@ void streamCallbackParameter(MultiPathStreamData stream)
         }else if(path.indexOf("set_ppm") > -1){ 
           preferences.putString("targetPpm", _data);
           proccessNoJson(_data);        
-
-        
         }else{
           Serial.println("wrong path > " +String( path.indexOf("scheduler_jadwal_penyiraman")));
         }
@@ -80,23 +78,8 @@ void streamCallbackParameter(MultiPathStreamData stream)
 }
 
 void begin_stream(){
+  Serial.println("begin_stream");
     if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter))
     Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());
   Firebase.setMultiPathStreamCallback(streamParameter, streamCallbackParameter, streamTimeoutCallbackParameter);
-}
-
-
-void setupFirebase(){
-  config.api_key = API_KEY;
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
-  config.database_url = DATABASE_URL;
-  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
-  Firebase.begin(&config, &auth);
-  Firebase.reconnectWiFi(true);
-#if defined(ESP8266)
-  stream.setBSSLBufferSize(2048 /* Rx in bytes, 512 - 16384 */, 512 /* Tx in bytes, 512 - 16384 */);
-#endif
-
-  begin_stream();
 }

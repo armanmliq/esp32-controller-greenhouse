@@ -5,18 +5,18 @@ void serial(){
     if(dat == 'a')
     {
       updateAllGrafik();
-//      coreUpdateAllGrafik();
       Serial.println("response");
     }
   
    if(dat == 'd')
     {
-//      deleteGrafikDataLastOneDay();
+      Serial.println("delete proccess");
       coreDeleteGrafik();
     }
     
-   
-
-
+   if(dat == 'p'){
+     String sv = "44";
+     preferences.putString("counter: ", sv);
+   }
  }
 }

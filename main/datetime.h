@@ -15,7 +15,7 @@ void digitalClockDisplay(){
   Serial.print(' '); 
   Serial.print(hour(timeClient.getEpochTime() + offsetGmt));
   Serial.print(':');
-  Serial.println(minute(timeClient.getEpochTime() + offsetGmt));
+  Serial.println(String(minute(timeClient.getEpochTime()) + offsetGmt) + " "+String(WiFi.status()));
 }
 
 void updateNtp(){

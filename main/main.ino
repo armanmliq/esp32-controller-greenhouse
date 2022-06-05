@@ -29,51 +29,87 @@ String myData ="";
 #include "preferences.h" 
 #include "datetime.h" 
 #include "firebase.h" 
-#include "on_disconnect.h" 
+#include "wifi_event.h" 
 #include "preferences_start.h" 
 #include "push_grafik_firebase.h"
 #include "at_serial.h" 
 void setup()
 {
+  //SerialBegin
+  Serial.begin(115200);  
+  
   preferences.begin("my-app", false); 
   readPreferences(); 
- 
+  
+
   //set output mode
   pinMode(RelayPhUpPin,OUTPUT);
   pinMode(RelayPhDownPin,OUTPUT);
   pinMode(RelayPpmPin,OUTPUT);     
 
-  //SerialBegin
-  Serial.begin(115200);  
+
 
   //update internal
-  parsingInternalData();
-
-
+  parsingInternalData(); 
+  
   //begin wifi
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   unsigned long timeout_wifi_m = millis();
   
   //on disconnect
-  WiFi.onEvent(Wifi_disconnected, SYSTEM_EVENT_STA_DISCONNECTED); 
-  
+  WiFi.onEvent(wifi_disconnected, SYSTEM_EVENT_STA_DISCONNECTED); 
+  WiFi.onEvent(wifi_connected, SYSTEM_EVENT_STA_CONNECTED);   
   //wait or timeout  
   while(WiFi.status() != WL_CONNECTED & millis() - timeout_wifi_m < 20000){
     Serial.println("waiting connect");
+    delay(2000);
   }
-
-  setupFirebase();
+  xTaskCreate(
+                    taskOne,          /* Task function. */
+                    "TaskOne",        /* String with name of task. */
+                    10000,            /* Stack size in bytes. */
+                    NULL,             /* Parameter passed as input of the task */
+                    1,                /* Priority of the task. */
+                    NULL);            /* Task handle. */
+                   
   updateNtp();    
+  Serial.println("begin to setup");
   configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  config.api_key = API_KEY;
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
+  config.database_url = DATABASE_URL;
+  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
+  #if defined(ESP8266)
+    stream.setBSSLBufferSize(2048 , 512 /* Tx in bytes, 512 - 16384 */);
+  #endif
+    begin_stream();
 }
 
 void loop()
-{ 
-  handleGrafik();
+{
+
+
+  setupFirebaseAtWifiDisconnect();
   serial();
-  //  CheckSchedulePenyiraman();
-  //  CheckSchedulePpm();
+    CheckSchedulePenyiraman();
+    CheckSchedulePpm();
   updateNtp();
   delay(1000); 
+}
+
+void taskOne( void * parameter )
+{
+ 
+    for(;;){
+        handleGrafik();
+        //Serial.println("Hello from task 1");
+        yield();
+        delay(1000);
+    } 
+    vTaskDelete( NULL );
+ 
 }

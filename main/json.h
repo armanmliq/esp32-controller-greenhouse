@@ -2,8 +2,8 @@
 #include "getvalue.h"
 #include "schedule_ppm.h"
 #include "schedule_penyiraman.h"
-StaticJsonDocument<1024> doc;
-
+StaticJsonDocument<2048> docPpm;
+StaticJsonDocument<2048> docPenyiraman;
 
 void JsonPreprocessorSchedulePpm(String json)
 {
@@ -32,7 +32,7 @@ void JsonPreprocessorSchedulePpm(String json)
   json.replace("\\","");
 
   //proccess json and check error
-  DeserializationError error = deserializeJson(doc, json);
+  DeserializationError error = deserializeJson(docPpm, json);
   if (error) {
     Serial.print("deserializeJson() failed: ");
     Serial.println(error.c_str());
@@ -50,7 +50,7 @@ void JsonPreprocessorSchedulePpm(String json)
     }
 
   //LOOPING ITERABLE JSON
-  for (JsonObject Data : doc["data"].as<JsonArray>()) {
+  for (JsonObject Data : docPpm["data"].as<JsonArray>()) {
     _indexSchedulePpm ++;
     String dateStart = Data["dateFrom"];
     String dateEnd = Data["dateTo"]; 
@@ -73,7 +73,7 @@ void JsonPreprocessorSchedulePenyiraman(String json)
   json.replace("\\","");
 
   //deserializeJson and check error
-  DeserializationError error = deserializeJson(doc, json);
+  DeserializationError error = deserializeJson(docPenyiraman, json);
   if (error) {
     Serial.print("deserializeJson() failed: ");
     Serial.println(error.c_str());
@@ -90,7 +90,7 @@ void JsonPreprocessorSchedulePenyiraman(String json)
     }
 
   //LOOPING ITERABLE JSON
-  for (JsonObject Data : doc["data"].as<JsonArray>()) 
+  for (JsonObject Data : docPenyiraman["data"].as<JsonArray>()) 
   {
     _indexSchedulePenyiraman ++;
     String TimeOfDayStr = Data["TimeOfDay"];
