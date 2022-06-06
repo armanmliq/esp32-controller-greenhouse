@@ -6,8 +6,6 @@ time_t unix_start_ppm; // a timestamp
 String listEpochStartPpm;
 String listEpochEndPpm;
 String listPpm;
-float targetPpm;
-float targetPh;
 
 //parsing start date
 void parseDateStart(String date) 
@@ -29,6 +27,7 @@ void parseDateStart(String date)
 //parsing end date
 void parseDateEnd(String date) 
 {  
+  
   int _day = date.substring(8, 10).toInt();
   int _month = date.substring(5, 7).toInt();
   int _year = date.substring(0, 4).toInt();
@@ -51,9 +50,10 @@ void parsePpm(String ppm)
 
 //check given data in range
 bool isInRangePpm(String epochStartDateStr,String epochEndDateStr, String ppm){
+  DateTime now = rtc.now();
   unsigned long epochStartDate = epochStartDateStr.toInt();
    unsigned long epochEndDate = epochEndDateStr.toInt();
-  if(epochNow < epochEndDate && epochNow > epochStartDate){
+  if(now.unixtime() < epochEndDate && now.unixtime() > epochStartDate){
     return true;  
   }else{
     return false;

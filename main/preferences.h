@@ -1,24 +1,24 @@
 #include <Preferences.h>
 Preferences preferences;
-
-void readPreferences(){
-  String schPpm = preferences.getString("schPpm");
-  String schPen = preferences.getString("schPen");
-  String modePh = preferences.getString("modePh");
-  String modePpm = preferences.getString("modePpm");
-  String targetPh = preferences.getString("targetPh");
-  String targetPpm = preferences.getString("targetPpm");
-  int restartCount = 0;
-  String restartCountStr =  preferences.getString("counter");
-  restartCount = restartCountStr.toInt();
-  Serial.println("counter: " + restartCountStr);
-  Serial.println("schPen: " + schPen);
-  Serial.println("modePh: " + modePh);
-  Serial.println("modePpm: " + modePpm);
-  Serial.println("targetPh: " + targetPh);
-  Serial.println("targetPpm: " + targetPpm);
-  Serial.println("delay 5sec");
-  delay(5000);
- 
-
-} 
+//String schPenyiramanStr,schPpmStr,manualPhDownStr,manualPhUpStr,modePhStr,modePpmStr,targetPhStr,targetPpmStr,manualPpmUpStr = "";
+//void readPreferences(){
+//  schPpmStr = preferences.getString("schPpm");
+//  schPenyiramanStr = preferences.getString("schPen");
+//  modePhStr = preferences.getString("modePh");
+//  modePpmStr = preferences.getString("modePpm");
+//  targetPhStr = preferences.getString("targetPh");
+//  targetPpmStr = preferences.getString("targetPpm");
+//
+//  targetPh = targetPhStr.toFloat();
+//  targetPpm = targetPpmStr.toFloat();
+//  Serial.println("schPpm: " + schPpmStr); 
+//  Serial.println("schPen: " + schPenyiramanStr);
+//  Serial.println("modePh: " + modePhStr);
+//  Serial.println("modePpm: " + modePpmStr);
+//  Serial.println("targetPh: " + targetPhStr);
+//  Serial.println("targetPpm: " + targetPpmStr);
+//  Serial.println("delay 5 sec");
+//  delay(5000);
+// 
+//
+//} 

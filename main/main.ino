@@ -8,49 +8,68 @@
 #include <addons/TokenHelper.h> 
 #include <addons/RTDBHelper.h>
 
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,20,4);  
+
+#include "TimeLib.h"
+#include "RTClib.h"
+RTC_DS3231 rtc;
 
 String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 #define WIFI_SSID "AMI"
 #define WIFI_PASSWORD "admin.admin" 
 
-
 unsigned int offsetGmt = 3600 * 7;
 
 //set parameter variable
 String schPenyiramanStr,schPpmStr,manualPhDownStr,manualPhUpStr,modePhStr,modePpmStr,targetPhStr,targetPpmStr,manualPpmUpStr = "";
-float sensPh,sensPpm,sensHumidity,sensTemperature;
+float sensPh,sensPpm,sensHumidity;
+float targetPh,targetPpm;
 
-bool RelayPhUp,RelayPhDown,RelayPpm;
+
+bool RelayPompaPenyiraman,RelayPhUp,RelayPhDown,RelayPpm;
 byte RelayPhUpPin= 1;
 byte RelayPhDownPin = 2;
 byte RelayPpmPin = 3;
+byte RelayPompaPenyiramanPin = 4;
 String myData ="";
 
 #include "preferences.h" 
-#include "datetime.h" 
+#include "response_output_from_firebase.h"
 #include "firebase.h" 
+#include "lcd.h"
+#include "datetime.h" 
 #include "wifi_event.h" 
 #include "preferences_start.h" 
 #include "push_grafik_firebase.h"
-#include "at_serial.h" 
+#include "at_serial.h"
+ 
 void setup()
 {
   //SerialBegin
   Serial.begin(115200);  
   
-  preferences.begin("my-app", false); 
-  readPreferences(); 
+  lcd.init();
+  lcd.backlight();
   
+  //rtc
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+//    Serial.flush();
+//    while (1) delay(10);
+  }
 
+
+  //preferences
+  preferences.begin("my-app", false);  
+    
   //set output mode
   pinMode(RelayPhUpPin,OUTPUT);
   pinMode(RelayPhDownPin,OUTPUT);
   pinMode(RelayPpmPin,OUTPUT);     
+  pinMode(RelayPompaPenyiramanPin,OUTPUT);  
 
-
-
-  //update internal
-  parsingInternalData(); 
   
   //begin wifi
   WiFi.mode(WIFI_STA);
@@ -62,18 +81,20 @@ void setup()
   WiFi.onEvent(wifi_connected, SYSTEM_EVENT_STA_CONNECTED);   
   //wait or timeout  
   while(WiFi.status() != WL_CONNECTED & millis() - timeout_wifi_m < 20000){
-    Serial.println("waiting connect");
-    delay(2000);
+   lcd.setCursor(0,0);
+   lcd.print("connecting to ");
+   lcd.setCursor(0,1);
+   lcd.print(WIFI_SSID);
   }
   xTaskCreate(
-                    taskOne,          /* Task function. */
-                    "TaskOne",        /* String with name of task. */
-                    10000,            /* Stack size in bytes. */
-                    NULL,             /* Parameter passed as input of the task */
-                    1,                /* Priority of the task. */
-                    NULL);            /* Task handle. */
+    taskOne,          /* Task function. */
+    "TaskOne",        /* String with name of task. */
+    10000,            /* Stack size in bytes. */
+    NULL,             /* Parameter passed as input of the task */
+    1,                /* Priority of the task. */
+    NULL
+  ); 
                    
-  updateNtp();    
   Serial.println("begin to setup");
   configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");
   config.api_key = API_KEY;
@@ -83,30 +104,29 @@ void setup()
   config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
+  
   #if defined(ESP8266)
     stream.setBSSLBufferSize(2048 , 512 /* Tx in bytes, 512 - 16384 */);
   #endif
     begin_stream();
+
+  updateNtp();     
+  parsingInternalData(); 
 }
 
 void loop()
 {
-
-
-  setupFirebaseAtWifiDisconnect();
+  eventDayChange();
+  eventSecondChange();
   serial();
-    CheckSchedulePenyiraman();
-    CheckSchedulePpm();
-  updateNtp();
-  delay(1000); 
+
+
 }
 
 void taskOne( void * parameter )
-{
- 
+{ 
     for(;;){
-        handleGrafik();
-        //Serial.println("Hello from task 1");
+        //handleGrafik(); 
         yield();
         delay(1000);
     } 

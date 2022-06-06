@@ -1,5 +1,5 @@
 void serial(){
-  if(Serial.available() > 0)
+    if(Serial.available() > 0)
   {
     char dat = Serial.read();
     if(dat == 'a')

@@ -8,7 +8,13 @@ void parsingInternalData(){
 
   targetPh = targetPhStr.toFloat();
   targetPpm = targetPpmStr.toFloat();
-  
+  Serial.println("schPpm: " + schPpmStr); 
+  Serial.println("schPen: " + schPenyiramanStr);
+  Serial.println("modePh: " + modePhStr);
+  Serial.println("modePpm: " + modePpmStr);
+  Serial.println("targetPh: " + targetPhStr);
+  Serial.println("targetPpm: " + targetPpmStr);
+  Serial.println("delay 5 sec");
   JsonPreprocessorSchedulePpm(schPpmStr);
   JsonPreprocessorSchedulePenyiraman(schPenyiramanStr);
 }

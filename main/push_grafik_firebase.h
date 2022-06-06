@@ -26,6 +26,10 @@ void updateGrafik(String _typeSensor, String _value){
     json.add("value", String(random(50,90)));      
     }else if(_typeSensor == "temp"){
     json.add("value", String(random(27,38)));      
+    }else if(_typeSensor == "waterTemp"){
+    json.add("value", String(random(27,38)));      
+    }else if(_typeSensor == "statusPompaPenyiraman"){
+    json.add("value", String(_value));      
     }
     
     Serial.print("Push data... "+ _typeSensor);
@@ -83,18 +87,41 @@ void setQueryRules(){
           isQuerySettedTemp = false;
           Serial.println(fbdoDelete.errorReason()); 
   }
+         if (!isQuerySettedTemp)
+  {
+      isQuerySettedTemp = true;
+      Serial.print("Set query index in database rules..  "); 
+      if (Firebase.setQueryIndex(fbdoDelete, "users/" + uid+ "/grafik/waterTemp" ,"ts", "Kg7ULKnG0RSjFugCV96QD2LMNzkEydiTPgpuqAWW"))
+          Serial.println( + "waterTemp setQuery ok");
+      else
+          isQuerySettedTemp = false;
+          Serial.println(fbdoDelete.errorReason()); 
+  }
+         if (!isQuerySettedTemp)
+  {
+      isQuerySettedTemp = true;
+      Serial.print("Set query index in database rules..  "); 
+      if (Firebase.setQueryIndex(fbdoDelete, "users/" + uid+ "/grafik/statusPompaPenyiraman" ,"ts", "Kg7ULKnG0RSjFugCV96QD2LMNzkEydiTPgpuqAWW"))
+          Serial.println( + "statusPompaPenyiraman setQuery ok");
+      else
+          isQuerySettedTemp = false;
+          Serial.println(fbdoDelete.errorReason()); 
+  }
   }else{
     Serial.println("avoid set ruled at wifi disconnect");
   }
-
 }
 
 void updateAllGrafik(){
   setQueryRules();
-  updateGrafik("ph",String(sensPh));
-  updateGrafik("ppm",String(sensPpm));
-  updateGrafik("humidity",String(sensHumidity));
-  updateGrafik("temp",String(sensTemperature));
+  updateGrafik("ph","");
+  updateGrafik("ppm","");
+  updateGrafik("humidity","");
+  updateGrafik("temp","");
+  updateGrafik("waterTemp","");
+}
+void pushStatusPenyiraman(bool stats){
+  updateGrafik("statusPompaPenyiraman","");
 }
 
 
@@ -114,21 +141,15 @@ void coreDeleteGrafik(){
                 Serial.println("del humidity ok");
             else
                 Serial.println(fbdoDelete.errorReason());    
-
+                
             if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/temp", "ts", valDeleteAtOnce , deleteLastSecond ))
                 Serial.println("del ppm ok");
             else
-                  config.api_key = API_KEY;
-                  auth.user.email = USER_EMAIL;
-                  auth.user.password = USER_PASSWORD;
-                  config.database_url = DATABASE_URL;
-                  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
-                  Firebase.begin(&config, &auth);
-                  Firebase.reconnectWiFi(true);
-                  #if defined(ESP8266)
-                    stream.setBSSLBufferSize(2048 , 512 /* Tx in bytes, 512 - 16384 */);
-                  #endif
-                    begin_stream();
+                Serial.println(fbdoDelete.errorReason());    
+
+            if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid+ "/grafik/humidity", "ts", valDeleteAtOnce , deleteLastSecond ))
+                Serial.println("del humidity ok");
+            else
                 Serial.println(fbdoDelete.errorReason());    
     }else{
       Serial.println("avoid delete nodes at wifi disconnect");

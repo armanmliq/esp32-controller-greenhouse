@@ -8,9 +8,10 @@ time_t unix_end_penyiraman;
 
 void parseSchedulePenyiraman(String date, String _lamaPenyiraman) 
 {
-    int _day = day(timeClient.getEpochTime() + offsetGmt);
-    int _month = month(timeClient.getEpochTime() + offsetGmt);
-    int _year = year(timeClient.getEpochTime() + offsetGmt);
+    DateTime now = rtc.now();
+    int _day = now.day();
+    int _month = now.month();
+    int _year = now.year();
     int _hour = date.substring(10, 12).toInt();
     int _min = date.substring(13, 15).toInt();
     
@@ -29,9 +30,10 @@ void parseSchedulePenyiraman(String date, String _lamaPenyiraman)
 
 //check given data in range
 bool isInRangePenyiraman(String epochStartDateStr,String epochEndDateStr){
+  DateTime now = rtc.now();
   unsigned long epochStartDate = epochStartDateStr.toInt();
    unsigned long epochEndDate = epochEndDateStr.toInt();
-  if(epochNow < epochEndDate && epochNow > epochStartDate){
+  if(now.unixtime() < epochEndDate && now.unixtime() > epochStartDate){
     return true;  
   }else{
     return false;
