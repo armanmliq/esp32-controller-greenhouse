@@ -15,8 +15,8 @@ void serial(){
     }
     
    if(dat == 'p'){
-     String sv = "44";
-     preferences.putString("counter: ", sv);
+    Serial.println("config time");
+    configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");
    }
  }
 }

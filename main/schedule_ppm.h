@@ -72,6 +72,6 @@ void CheckSchedulePpm(){
     targetPpm = _ppm.toFloat();
    }
     
-    Serial.println(String(i) + ":"+ isInRangePpm(epochStart, epochEnd, _ppm));    
+    Serial.println(String(i) + ":"+ epochNow +" -   "+epochStart+" - " +epochEnd+" "+isInRangePpm(epochStart, epochEnd, _ppm));    
   }
 }

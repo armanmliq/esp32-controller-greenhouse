@@ -21,52 +21,56 @@ void proccessNoJson(String _data){
 
 void streamCallbackParameter(MultiPathStreamData stream)
 {
+
   size_t numChild = sizeof(childPathSetParameter) / sizeof(childPathSetParameter[0]);
   for (size_t i = 0; i < numChild; i++)
   {
+    Serial.println("maxPayload:" + String(stream.maxPayloadLength()));
+    Serial.println("PayloadLen:" + String(stream.payloadLength()));
+
     if (stream.get(childPathSetParameter[i]))
     {
       String path = stream.dataPath;
-      String _data = stream.value;
-      
-      Serial.printf("path: %s, event: %s, type: %s, value: %s%s", stream.dataPath.c_str(), stream.eventType.c_str(), stream.type.c_str(), stream.value.c_str(), i < numChild - 1 ? "\n" : "");
-
-      
+      String _data = stream.value;       
+      Serial.printf("path: %s, event: %s, type: %s, value: %s%s", stream.dataPath.c_str(), stream.eventType.c_str(), stream.type.c_str(), stream.value.c_str(), i < numChild - 1 ? "\n" : ""); 
       //cek_scheduler_ppm
-      if(path.indexOf("scheduler_ppm_str") > -1){
-         preferences.putString("schPpm", _data);
-         JsonPreprocessorSchedulePpm(_data);        
-
-        //scheduler_jadwal_penyiraman
-        }else if(path.indexOf("scheduler_jadwal_penyiraman") > -1){
-          preferences.putString("schPen", _data);
-          JsonPreprocessorSchedulePenyiraman(_data);        
-        
-        
-        //set_mode_ph
-        }else if(path.indexOf("set_mode_ph") > -1){
-          preferences.putString("modePh", _data);
-          proccessNoJson(_data);
-
-
-        //set_mode_ppm
-        }else if(path.indexOf("set_mode_ppm") > -1){      
-          preferences.putString("modePpm", _data);
-          proccessNoJson(_data);
-          
-        //set_ph
-        }else if(path.indexOf("set_ph") > -1){       
-          preferences.putString("targetPh", _data);
-          proccessNoJson(_data);
-
-        //set_ppm
-        }else if(path.indexOf("set_ppm") > -1){ 
-          preferences.putString("targetPpm", _data);
-          proccessNoJson(_data);        
-        }else{
-          Serial.println("wrong path > " +String( path.indexOf("scheduler_jadwal_penyiraman")));
-        }
+//      if(path.indexOf("scheduler_ppm_str") > -1){
+//         preferences.putString("schPpm", _data);
+//         JsonPreprocessorSchedulePpm(_data);        
+//
+//        //scheduler_jadwal_penyiraman
+//        }else if(path.indexOf("scheduler_jadwal_penyiraman") > -1){
+//          preferences.putString("schPen", _data);
+//          JsonPreprocessorSchedulePenyiraman(_data);        
+//        
+//        
+//        //set_mode_ph
+//        }else if(path.indexOf("set_mode_ph") > -1){
+//          preferences.putString("modePh", _data);
+//          proccessNoJson(_data);
+//
+//
+//        //set_mode_ppm
+//        }else if(path.indexOf("set_mode_ppm") > -1){
+//          preferences.putString("modePpm", _data);
+//          proccessNoJson(_data);
+//          
+//        //set_ph
+//        }else if(path.indexOf("set_ph") > -1){
+//          preferences.putString("targetPh", _data);
+//          proccessNoJson(_data);
+//
+//        //set_ppm
+//        }else if(path.indexOf("set_ppm") > -1){
+//          preferences.putString("targetPpm", _data);
+//          proccessNoJson(_data);        
+//        }else{
+//          Serial.println("wrong path > " +String( path.indexOf("scheduler_jadwal_penyiraman")));
+//        }
+          Serial.printf("Received stream payload size: %d (Max. %d)\n\n", stream.payloadLength(), stream.maxPayloadLength());
+          delay(1000);
     }
+    
   } 
 }
  void streamTimeoutCallbackParameter(bool timeout)
@@ -78,8 +82,5 @@ void streamCallbackParameter(MultiPathStreamData stream)
 }
 
 void begin_stream(){
-  Serial.println("begin_stream");
-    if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter))
-    Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());
-  Firebase.setMultiPathStreamCallback(streamParameter, streamCallbackParameter, streamTimeoutCallbackParameter);
+
 }

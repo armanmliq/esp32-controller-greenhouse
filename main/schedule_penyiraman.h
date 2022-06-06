@@ -12,8 +12,7 @@ void parseSchedulePenyiraman(String date, String _lamaPenyiraman)
     int _month = month(timeClient.getEpochTime() + offsetGmt);
     int _year = year(timeClient.getEpochTime() + offsetGmt);
     int _hour = date.substring(10, 12).toInt();
-    int _min = date.substring(13, 15).toInt();
-    
+    int _min = date.substring(13, 15).toInt(); 
     time_penyiraman.Second = 0;
     time_penyiraman.Hour = _hour;
     time_penyiraman.Minute = _min;
@@ -23,8 +22,7 @@ void parseSchedulePenyiraman(String date, String _lamaPenyiraman)
     unix_start_penyiraman =  makeTime(time_penyiraman);
     unix_end_penyiraman = unix_start_penyiraman + (_lamaPenyiraman.toInt() * 60);
     listEpochStartDatePenyiraman += String(unix_start_penyiraman)+',';
-    listEpochEndDatePenyiraman += String(unix_end_penyiraman) +',';
-    
+    listEpochEndDatePenyiraman += String(unix_end_penyiraman) +','; 
 }
 
 //check given data in range
@@ -45,6 +43,6 @@ void CheckSchedulePenyiraman()
     for(int i=0; i< _indexSchedulePenyiraman; i++){
     String epochStart= getValue(listEpochStartDatePenyiraman,',', i);
     String epochEnd= getValue(listEpochEndDatePenyiraman,',', i);
-    Serial.println(String(i)+" : " + isInRangePenyiraman(epochStart, epochEnd));    
+    Serial.println(String(i)+" : "  + ":"+ epochNow +" -   "+epochStart+" - " +epochEnd+" "+ isInRangePenyiraman(epochStart, epochEnd));    
   }
 }

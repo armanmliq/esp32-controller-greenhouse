@@ -7,7 +7,10 @@
 #endif
 #include <addons/TokenHelper.h> 
 #include <addons/RTDBHelper.h>
-
+ 
+#include <ArduinoJson.h>
+StaticJsonDocument<3072> docPpm;
+StaticJsonDocument<3072> docPenyiraman;
 
 String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 #define WIFI_SSID "AMI"
@@ -73,42 +76,44 @@ void setup()
                     1,                /* Priority of the task. */
                     NULL);            /* Task handle. */
                    
-  updateNtp();    
-  Serial.println("begin to setup");
+  updateNtp();     
   configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");
   config.api_key = API_KEY;
   auth.user.email = USER_EMAIL;
   auth.user.password = USER_PASSWORD;
   config.database_url = DATABASE_URL;
-  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+  config.token_status_callback = tokenStatusCallback;
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
-  #if defined(ESP8266)
-    stream.setBSSLBufferSize(2048 , 512 /* Tx in bytes, 512 - 16384 */);
-  #endif
-    begin_stream();
+    Serial.println("begin_stream");
+    if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter)){
+     Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());      
+    }else{
+      Serial.println("successfull begin stream");
+    }
+  Firebase.setMultiPathStreamCallback(streamParameter, streamCallbackParameter, streamTimeoutCallbackParameter);
 }
 
 void loop()
 {
-
-
-  setupFirebaseAtWifiDisconnect();
+//  setupFirebaseAtWifiDisconnect();
   serial();
-    CheckSchedulePenyiraman();
-    CheckSchedulePpm();
-  updateNtp();
-  delay(1000); 
+//  CheckSchedulePenyiraman();
+//  CheckSchedulePpm();
+//  updateNtp();
+//  delay(1000); 
 }
 
 void taskOne( void * parameter )
 {
  
     for(;;){
+      if(WiFi.status() == WL_CONNECTED & Firebase.ready()){
         handleGrafik();
-        //Serial.println("Hello from task 1");
-        yield();
+        yield();        
         delay(1000);
+      }
+
     } 
     vTaskDelete( NULL );
  

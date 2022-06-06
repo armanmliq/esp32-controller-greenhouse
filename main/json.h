@@ -1,9 +1,8 @@
-#include <ArduinoJson.h>
+
 #include "getvalue.h"
 #include "schedule_ppm.h"
 #include "schedule_penyiraman.h"
-StaticJsonDocument<2048> docPpm;
-StaticJsonDocument<2048> docPenyiraman;
+
 
 void JsonPreprocessorSchedulePpm(String json)
 {

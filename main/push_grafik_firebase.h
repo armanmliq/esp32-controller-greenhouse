@@ -26,6 +26,8 @@ void updateGrafik(String _typeSensor, String _value){
     json.add("value", String(random(50,90)));      
     }else if(_typeSensor == "temp"){
     json.add("value", String(random(27,38)));      
+    }else if(_typeSensor == "waterTemp"){
+    json.add("value", String(random(27,38)));      
     }
     
     Serial.print("Push data... "+ _typeSensor);
@@ -83,6 +85,16 @@ void setQueryRules(){
           isQuerySettedTemp = false;
           Serial.println(fbdoDelete.errorReason()); 
   }
+   if (!isQuerySettedTemp)
+  {
+      isQuerySettedTemp = true;
+      Serial.print("Set query index in database rules..  "); 
+      if (Firebase.setQueryIndex(fbdoDelete, "users/" + uid+ "/grafik/waterTemp" ,"ts", "Kg7ULKnG0RSjFugCV96QD2LMNzkEydiTPgpuqAWW"))
+          Serial.println( + "watertemp setQuery ok");
+      else
+          isQuerySettedTemp = false;
+          Serial.println(fbdoDelete.errorReason()); 
+  }
   }else{
     Serial.println("avoid set ruled at wifi disconnect");
   }
@@ -95,6 +107,7 @@ void updateAllGrafik(){
   updateGrafik("ppm",String(sensPpm));
   updateGrafik("humidity",String(sensHumidity));
   updateGrafik("temp",String(sensTemperature));
+  updateGrafik("waterTemp",String(sensTemperature));
 }
 
 
@@ -116,8 +129,13 @@ void coreDeleteGrafik(){
                 Serial.println(fbdoDelete.errorReason());    
 
             if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/temp", "ts", valDeleteAtOnce , deleteLastSecond ))
-                Serial.println("del ppm ok");
+                Serial.println("del temp ok");
             else
+            
+            if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/waterTemp", "ts", valDeleteAtOnce , deleteLastSecond ))
+                Serial.println("del waterTemp ok");
+            else
+                  updateNtp();   
                   config.api_key = API_KEY;
                   auth.user.email = USER_EMAIL;
                   auth.user.password = USER_PASSWORD;
@@ -126,7 +144,7 @@ void coreDeleteGrafik(){
                   Firebase.begin(&config, &auth);
                   Firebase.reconnectWiFi(true);
                   #if defined(ESP8266)
-                    stream.setBSSLBufferSize(2048 , 512 /* Tx in bytes, 512 - 16384 */);
+                    stream.setBSSLBufferSize(2048 , 512);
                   #endif
                     begin_stream();
                 Serial.println(fbdoDelete.errorReason());    
