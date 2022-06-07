@@ -43,7 +43,9 @@ void toOutputResponse(String path, String _data) {
     }
   } else if (path.indexOf("set_dosing_pump_ph_up") > -1) {
     if (_data == "HIDUP") {
+      Serial.println("HIDUP RelayPompaPhUpPin");
       digitalWrite(RelayPompaPhUpPin, 1);
+      delay(1000);
     } else {
       digitalWrite(RelayPompaPhUpPin, 0);
     }

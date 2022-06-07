@@ -45,8 +45,7 @@ void updateGrafik(String _typeSensor, String _value) {
       else if (debug) Serial.println(fbdoPush.errorReason());
   } else {
     if (debug) Serial.println("failed update at wifi disconn");
-  }
-
+  } 
 }
 
 void setQueryRules() {

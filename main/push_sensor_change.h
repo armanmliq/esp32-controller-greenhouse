@@ -1,14 +1,7 @@
-float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp;
-bool savedStatsPengisian, savedStatsPpmUp, savedStatsPhUp, savedStatsPhDown;
-bool updatePengisianStats, updatePpmStats, updatePhStats, updateHumidityStats, updateWaterTempStats, updateTempRoomStats, updatePpmUpStats, updatePhUpStats, updatePhDownStats;
-bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats;
-
-
-
 void detectChangePenyiraman() {
-  penyiramanStats = digitalRead(RelayPompaPenyiramanPin);
-  if (penyiramanStats != savedStatsPenyiraman) {
-    savedStatsPenyiraman = penyiramanStats;
+  pompaPenyiramanStats = digitalRead(RelayPompaPenyiramanPin);
+  if (pompaPenyiramanStats != savedStatsPenyiraman) {
+    savedStatsPenyiraman = pompaPenyiramanStats;
     updatePenyiramanStats = 1;
   }
 }
@@ -34,7 +27,7 @@ void detectChangePhDown() {
   }
 }
 void detectChangePpmUp() {
-  pompaPpmUpStats = digitalRead(RelayPompaPhDownPin);
+  pompaPpmUpStats = digitalRead(RelayPompaPpmUpPin);
   if (pompaPpmUpStats != savedStatsPhDown) {
     savedStatsPpmUp = pompaPpmUpStats;
     updatePpmUpStats = 1;
@@ -76,8 +69,8 @@ void detectChangeWaterTemp() {
 void sendStatsPenyiraman() {
   if (updatePenyiramanStats) {
     updatePenyiramanStats = false;
-    updateGrafik("statusPompaPenyiraman", String(penyiramanStats));
-    updateStatusPompa("pompaPenyiraman", penyiramanStats);
+    updateGrafik("statusPompaPenyiraman", String(pompaPenyiramanStats));
+    updateStatusPompa("pompaPenyiraman", pompaPenyiramanStats);
   }
 }
 void sendStatsPengisian() {
@@ -127,7 +120,7 @@ void sendStatsHumidity() {
 void sendStatsWaterTemp() {
   if (updateWaterTempStats) {
     updateWaterTempStats = false;
-    updateStatusSensor("TemperatureWater", String(sensWaterTemp, 1));
+    updateStatusSensor("temperatureWater", String(sensWaterTemp, 1));
   }
 }
 void sendStatsTempRoom() {
@@ -136,6 +129,8 @@ void sendStatsTempRoom() {
     updateStatusSensor("temperature", String(sensTempRoom, 1));
   }
 }
+
+
 void sendAllStats() {
   sendStatsPenyiraman();
   sendStatsPengisian();

@@ -45,7 +45,10 @@ void detectForFilling() {
   if (isFloatTrue & !floatStatus & !isFloatLimit) {
     isFloatLimit = true;
     digitalWrite(RelayPompaPengisianPin, LOW);
-    setupForPhMixing();
+    if (modePhStr == "OTOMATIS") {
+      setupForPhMixing();
+    }
+
 
   }
 }
@@ -79,7 +82,9 @@ void detectForPhMixing() {
           dispActivity("ph already to target");
           isPhMixingBegin = false;
           digitalWrite(RelayPompaPhUpPin, LOW);
-          setupForPpm();
+          if (modePpmStr == "OTOMATIS") {
+            setupForPpm();
+          }
           return;
         }
         if (isPompaPhUpOn) {
@@ -96,7 +101,9 @@ void detectForPhMixing() {
           dispActivity("ph adjustment done");
           isPhMixingBegin = false;
           digitalWrite(RelayPompaPhDownPin, LOW);
-          setupForPpm();
+          if (modePpmStr == "OTOMATIS") {
+            setupForPpm();
+          }
           return;
         }
         if (isPompaPhDownOn) {
@@ -148,7 +155,7 @@ void readTempWater() {
   sensWaterTemp = random(30, 40);
 }
 void readTempRoom() {
-  sensHumidity = random(25, 40);
+  sensTempRoom = random(25, 40);
 }
 void readFloat() {
   floatStatus = digitalRead(floatSensorPin);
@@ -170,4 +177,94 @@ void validationTargetPhPpm() {
   if (targetPpm > 2000 || targetPpm < 1) {
     targetPpm = 1000;
   }
+}
+
+bool lastStatsLimitPenyiraman;
+unsigned long lastMillisPenyiraman;
+unsigned long intervalLimit = 1000 * 10;
+
+void limitActivePenyiraman() {
+  if (pompaPenyiramanStats) {
+    Serial.println("pompaPenyiramanStatsHIGH");
+    delay(100);
+    if (pompaPenyiramanStats != lastStatsLimitPenyiraman) {
+      lastStatsLimitPenyiraman = pompaPenyiramanStats;
+      lastMillisPenyiraman = millis();
+    }
+    if (millis() - lastMillisPenyiraman > intervalLimit) {
+      digitalWrite(RelayPompaPenyiramanPin, LOW);
+      pompaPenyiramanStats = false;
+      Serial.println("limittt");
+    }
+  } else {
+    lastMillisPenyiraman = millis();
+  }
+}
+
+bool lastStatsLimitPhUp;
+unsigned long lastMillisPhUp;
+void limitActivePhUp() {
+  if (pompaPhUpStats) {
+    Serial.println("pompaPhUpStatsHIGH");
+    delay(100);
+    if (pompaPhUpStats != lastStatsLimitPhUp) {
+      lastStatsLimitPhUp = pompaPhUpStats;
+      lastMillisPhUp = millis();
+    }
+    if (millis() - lastMillisPhUp > intervalLimit) {
+      digitalWrite(RelayPompaPhUpPin, LOW);
+      pompaPhUpStats = false;
+      Serial.println("limittt");
+    }
+  } else {
+    lastMillisPhUp = millis();
+  }
+}
+
+bool lastStatsLimitPhDown;
+unsigned long lastMillisPhDown;
+void limitActivePhDown() {
+  if (pompaPhDownStats) {
+    Serial.println("pompaPhDownStatsHIGH");
+    delay(100);
+    if (pompaPhDownStats != lastStatsLimitPhDown) {
+      lastStatsLimitPhDown = pompaPhDownStats;
+      lastMillisPhDown = millis();
+    }
+    if (millis() - lastMillisPhDown > intervalLimit) {
+      digitalWrite(RelayPompaPhDownPin, LOW);
+      pompaPhDownStats = false;
+      Serial.println("limittt");
+    }
+  } else {
+    lastMillisPhDown = millis();
+  }
+}
+
+
+bool lastStatsLimitPpmUp;
+unsigned long lastMillisPpmUp;
+void limitActivePpmUp() {
+  if (pompaPpmUpStats) {
+    Serial.println("pompaPpmUpStatsHIGH");
+    delay(100);
+    if (pompaPpmUpStats != lastStatsLimitPpmUp) {
+      lastStatsLimitPpmUp = pompaPpmUpStats;
+      lastMillisPpmUp = millis();
+    }
+    if (millis() - lastMillisPpmUp > intervalLimit) {
+      digitalWrite(RelayPompaPpmUpPin, LOW);
+      pompaPpmUpStats = false;
+      Serial.println("limittt");
+    }
+  } else {
+    lastMillisPpmUp = millis();
+  }
+}
+
+void limitAll(){
+  limitActivePpmUp();
+  limitActivePhDown();
+  limitActivePhUp();
+  limitActivePenyiraman();
 }

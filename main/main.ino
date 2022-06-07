@@ -21,21 +21,22 @@ String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 #define WIFI_PASSWORD "admin.admin"
 
 byte dispIndex;
-unsigned int offsetGmt = 3600 * 7;
-
-//set parameter variable
+unsigned int offsetGmt = 3600 * 7;//set parameter variable
 String schPenyiramanStr, schPpmStr, manualPhDownStr, manualPhUpStr, modePhStr, modePpmStr, targetPhStr, targetPpmStr, manualPpmUpStr = "";
 float sensPh, sensPpm, sensHumidity, sensTempWater, sensTempRoom, sensWaterTemp;
 float targetPh, targetPpm;
-
+float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp;
+bool savedStatsPengisian, savedStatsPpmUp, savedStatsPhUp, savedStatsPhDown;
+bool updatePengisianStats, updatePpmStats, updatePhStats, updateHumidityStats, updateWaterTempStats, updateTempRoomStats, updatePpmUpStats, updatePhUpStats, updatePhDownStats;
+bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats,pompaPenyiramanStats;
 bool RelayPompaPenyiraman, RelayPhUp, RelayPhDown, RelayPpm;
-byte RelayPompaPhUpPin = 1;
-byte RelayPompaPhDownPin = 2;
-byte RelayPompaPpmUpPin = 3;
-byte RelayPompaPenyiramanPin = 4;
-byte RelayPompaPengisianPin = 5;
+byte RelayPompaPhUpPin = 14;
+byte RelayPompaPhDownPin = 5;
+byte RelayPompaPpmUpPin = 17;
+byte RelayPompaPenyiramanPin = 18;
+byte RelayPompaPengisianPin = 15;
 byte floatStatus;
-byte floatSensorPin = 5;
+byte floatSensorPin = 16;
 
 String myData = "";
 bool savedStatsPenyiraman, penyiramanStats, updatePenyiramanStats;
@@ -45,7 +46,7 @@ unsigned long globalEpoch;
 
 #include "preferences.h"
 #include "lcd.h"
-#include "read_sensor.h"
+#include "sensor.h"
 #include "response_output_from_firebase.h"
 #include "firebase.h"
 #include "push_grafik_firebase.h"
@@ -131,7 +132,8 @@ void setup()
 
 void loop()
 {
-  Serial.println(digitalRead(RelayPompaPenyiramanPin));
+//  Serial.println(digitalRead(RelayPompaPhUpPin));
+  limitAll();
   eventDayChange();
   eventSecondChange();
   detectForPhMixing();
