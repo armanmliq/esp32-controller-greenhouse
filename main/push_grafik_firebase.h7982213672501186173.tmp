@@ -18,7 +18,19 @@ void updateGrafik(String _typeSensor, String _value) {
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
     FirebaseJson json;
     json.add("ts", (uint32_t)time(nullptr));
-    json.add("value", _value);
+    if (_typeSensor == "ph") {
+      json.add("value", String(random(5, 7)));
+    } else if (_typeSensor == "ppm") {
+      json.add("value", String(random(1000, 1300)));
+    } else if (_typeSensor == "humidity") {
+      json.add("value", String(random(50, 90)));
+    } else if (_typeSensor == "temp") {
+      json.add("value", String(random(27, 38)));
+    } else if (_typeSensor == "waterTemp") {
+      json.add("value", String(random(27, 38)));
+    } else if (_typeSensor == "statusPompaPenyiraman") {
+      json.add("value", String(_value));
+    }
 
     if (debug) Serial.print("Push data... " + _typeSensor);
     String _path = "users/" + uid + "/grafik/" + _typeSensor;
@@ -103,9 +115,9 @@ void updateAllGrafik() {
   setQueryRules();
   updateGrafik("ph", String(sensPh));
   updateGrafik("ppm", String(sensPpm));
-  updateGrafik("humidity", String(sensHumidity));
-  updateGrafik("temp", String(sensTempRoom));
-  updateGrafik("waterTemp", String(sensTempWater));
+  updateGrafik("humidity", String(sensHumidity);
+  updateGrafik("temp", sensTempRoom);
+  updateGrafik("waterTemp", sensWaterTemp.toString());
 }
 
 
@@ -182,6 +194,6 @@ void sendStatsPenyiraman() {
   if (updatePenyiramanStats) {
     updatePenyiramanStats = false;
     updateGrafik("statusPompaPenyiraman", String(penyiramanStats));
-    updateWhenPompaPenChange(penyiramanStats);
+    
   }
 }

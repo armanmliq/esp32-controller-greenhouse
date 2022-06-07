@@ -20,29 +20,38 @@ String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 #define WIFI_SSID "AMI"
 #define WIFI_PASSWORD "admin.admin" 
 
+byte dispIndex;
 unsigned int offsetGmt = 3600 * 7;
 
 //set parameter variable
 String schPenyiramanStr,schPpmStr,manualPhDownStr,manualPhUpStr,modePhStr,modePpmStr,targetPhStr,targetPpmStr,manualPpmUpStr = "";
-float sensPh,sensPpm,sensHumidity;
+float sensPh,sensPpm,sensHumidity,sensTempWater,sensTempRoom;
 float targetPh,targetPpm;
 
-
 bool RelayPompaPenyiraman,RelayPhUp,RelayPhDown,RelayPpm;
-byte RelayPhUpPin= 1;
-byte RelayPhDownPin = 2;
-byte RelayPpmPin = 3;
+byte RelayPompaPhUpPin= 1;
+byte RelayPompaPhDownPin = 2;
+byte RelayPompaPpmUpPin = 3;
 byte RelayPompaPenyiramanPin = 4;
-String myData ="";
+byte RelayPompaPengisianPin = 4;
+byte floatStatus;
+byte floatSensorPin = 5;
 
-#include "preferences.h" 
+String myData ="";
+bool savedStatsPenyiraman, penyiramanStats,updatePenyiramanStats;
+byte globalSec,globalMinute,globalHour,globalDay,globalMonth;
+int globalYear;
+unsigned long globalEpoch;
+
+#include "preferences.h"
+#include "lcd.h" 
+#include "read_sensor.h"
 #include "response_output_from_firebase.h"
 #include "firebase.h" 
-#include "lcd.h"
+#include "push_grafik_firebase.h"
 #include "datetime.h" 
 #include "wifi_event.h" 
 #include "preferences_start.h" 
-#include "push_grafik_firebase.h"
 #include "at_serial.h"
  
 void setup()
@@ -55,21 +64,19 @@ void setup()
   
   //rtc
   if (! rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-//    Serial.flush();
-//    while (1) delay(10);
+    Serial.println("Couldn't find RTC"); 
   }
-
 
   //preferences
   preferences.begin("my-app", false);  
     
-  //set output mode
-  pinMode(RelayPhUpPin,OUTPUT);
-  pinMode(RelayPhDownPin,OUTPUT);
-  pinMode(RelayPpmPin,OUTPUT);     
+  //set output mode  
   pinMode(RelayPompaPenyiramanPin,OUTPUT);  
-
+  pinMode(RelayPompaPhUpPin,OUTPUT);
+  pinMode(RelayPompaPhDownPin,OUTPUT);     
+  pinMode(RelayPompaPpmUpPin,OUTPUT); 
+  pinMode(floatSensorPin,INPUT);
+  pinMode(RelayPompaPengisianPin,HIGH);
   
   //begin wifi
   WiFi.mode(WIFI_STA);
@@ -82,17 +89,24 @@ void setup()
   //wait or timeout  
   while(WiFi.status() != WL_CONNECTED & millis() - timeout_wifi_m < 20000){
    lcd.setCursor(0,0);
-   lcd.print("connecting to ");
+   lcd.print("CONNECTING WIFI ");
    lcd.setCursor(0,1);
    lcd.print(WIFI_SSID);
+  }
+  if(WiFi.status() == WL_CONNECTED){
+    lcd.setCursor(0,2);
+    lcd.print("CONNECTED");
+  }else{
+    lcd.setCursor(0,1);
+    lcd.print("NOT CONNECTED");    
   }
   xTaskCreate(
     taskOne,          /* Task function. */
     "TaskOne",        /* String with name of task. */
-    10000,            /* Stack size in bytes. */
+    20000,            /* Stack size in bytes. */
     NULL,             /* Parameter passed as input of the task */
-    1,                /* Priority of the task. */
-    NULL
+    0,                /* Priority of the task. */
+    0
   ); 
                    
   Serial.println("begin to setup");
@@ -106,7 +120,7 @@ void setup()
   Firebase.reconnectWiFi(true);
   
   #if defined(ESP8266)
-    stream.setBSSLBufferSize(2048 , 512 /* Tx in bytes, 512 - 16384 */);
+    stream.setBSSLBufferSize(2048 , 512 );
   #endif
     begin_stream();
 
@@ -118,18 +132,17 @@ void loop()
 {
   eventDayChange();
   eventSecondChange();
+  detectForPhMixing();
+  detectForPpmMixing();
   serial();
-
-
 }
 
 void taskOne( void * parameter )
-{ 
+{
     for(;;){
-        //handleGrafik(); 
-        yield();
-        delay(1000);
+        handleGrafik();
+        vTaskDelay(10);
+        sendStatsPenyiraman();
     } 
     vTaskDelete( NULL );
- 
 }

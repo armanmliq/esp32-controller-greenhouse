@@ -1,3 +1,4 @@
+
 void parsingInternalData(){ 
   schPpmStr = preferences.getString("schPpm");
   schPenyiramanStr = preferences.getString("schPen");
@@ -8,6 +9,8 @@ void parsingInternalData(){
 
   targetPh = targetPhStr.toFloat();
   targetPpm = targetPpmStr.toFloat();
+  validationTargetPhPpm();
+  
   Serial.println("schPpm: " + schPpmStr); 
   Serial.println("schPen: " + schPenyiramanStr);
   Serial.println("modePh: " + modePhStr);

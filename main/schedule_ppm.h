@@ -50,10 +50,9 @@ void parsePpm(String ppm)
 
 //check given data in range
 bool isInRangePpm(String epochStartDateStr,String epochEndDateStr, String ppm){
-  DateTime now = rtc.now();
   unsigned long epochStartDate = epochStartDateStr.toInt();
    unsigned long epochEndDate = epochEndDateStr.toInt();
-  if(now.unixtime() < epochEndDate && now.unixtime() > epochStartDate){
+  if(globalEpoch < epochEndDate && globalEpoch > epochStartDate){
     return true;  
   }else{
     return false;

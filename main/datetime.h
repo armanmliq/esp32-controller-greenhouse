@@ -7,29 +7,17 @@ long epochNow = 0;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
-void printRtc() {
+void updateGlobalVarTime(){
   DateTime now = rtc.now();
-  Serial.print(now.year(), DEC);
-  Serial.print('/');
-  Serial.print(now.month(), DEC);
-  Serial.print('/');
-  Serial.print(now.day(), DEC);
-  Serial.print(" (");
-  Serial.print(daysOfTheWeek[now.dayOfTheWeek()]);
-  Serial.print(") ");
-  Serial.print(now.hour(), DEC);
-  Serial.print(':');
-  Serial.print(now.minute(), DEC);
-  Serial.print(':');
-  Serial.print(now.second(), DEC);
-  Serial.println();
-  Serial.print(" since midnight 1/1/1970 = ");
-  Serial.print(now.unixtime());
-  Serial.print("s = ");
-  Serial.print(now.unixtime() / 86400L);
-  Serial.println("d");
-  delay(3000);
+  globalSec = now.second();
+  globalMinute = now.minute();
+  globalHour = now.hour();
+  globalMonth = now.month();
+  globalDay = now.day();
+  globalYear = now.year();  
+  globalEpoch = now.unixtime() + (7 * 3600);
 }
+
 void digitalClockDisplay() {
   DateTime now = rtc.now();
   Serial.print(now.unixtime());
@@ -71,22 +59,24 @@ void syncRtc(){
 
 byte savedDay;
 void eventDayChange(){
-    DateTime now = rtc.now();
-    if(now.day() != savedDay)
+    if(globalDay != savedDay)
     {
-      savedDay = now.day();
+      savedDay = globalDay;
       updateNtp();
       syncRtc();
     }
 }
 
 unsigned lastSec;
+bool xState;
 void eventSecondChange(){
   if(millis() - lastSec >= 1000){
     lastSec = millis();
+    readSensor();
+    detectChangePenyiraman();
     CheckSchedulePenyiraman();
     CheckSchedulePpm();
-    printRtc();
     displaySensor();
+    displayInfo();
   }
 }
