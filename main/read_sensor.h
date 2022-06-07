@@ -145,7 +145,7 @@ void readHumidity() {
   sensHumidity = random(60, 90);
 }
 void readTempWater() {
-  sensHumidity = random(30, 40);
+  sensWaterTemp = random(30, 40);
 }
 void readTempRoom() {
   sensHumidity = random(25, 40);
@@ -155,14 +155,6 @@ void readFloat() {
   detectForFilling();
 }
 
-
-void detectChangePenyiraman() {
-  penyiramanStats = digitalRead(RelayPompaPenyiramanPin);
-  if (penyiramanStats != savedStatsPenyiraman) {
-    savedStatsPenyiraman = penyiramanStats;
-    updatePenyiramanStats = 1;
-  }
-}
 void readSensor() {
   readFloat();
   readPh();

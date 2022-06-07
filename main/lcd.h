@@ -20,7 +20,7 @@ void displaySensor() {
   lcd.setCursor(0, 0);
   lcd.print("                    ");
   lcd.setCursor(0, 0);
-  lcd.print("ph  :" + String(6.5) + " pH");
+  lcd.print("ph  :" + String(sensPh,1) + " pH");
   lcd.setCursor(15, 0);
 
   displayTime();
@@ -28,7 +28,7 @@ void displaySensor() {
   lcd.setCursor(0, 1);
   lcd.print("                    ");
   lcd.setCursor(0, 1);
-  lcd.print("tds :" + String(1020) + " ppm");
+  lcd.print("tds :" + String(sensPpm,0) + " ppm");
 }
 
 void setDispIndex(byte _dispIndex) {

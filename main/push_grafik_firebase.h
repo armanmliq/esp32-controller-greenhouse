@@ -2,6 +2,7 @@ bool debug = false;
 FirebaseData fbdoDelete;
 FirebaseData fbdoPush;
 FirebaseJson json;
+
 bool isQuerySettedPh        = false;
 bool isQuerySettedPpm       = false;
 bool isQuerySettedHumidity  = false;
@@ -13,7 +14,23 @@ int valDeleteAtOnce = 10;
 byte savedUpGrafikState;
 byte savedDeleteUpGrafikState;
 
-
+void updateStatusPompa(String _nodePath, bool _state) {
+  String _path = "users/" + uid + "/sensor_status";
+  String _pompaStats =  _state ? "HIDUP" : "MATI";
+  json.set(_nodePath, _pompaStats);
+  Serial.println("updating " + _nodePath + String(_pompaStats));
+  if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
+    Firebase.updateNode(fbdoPush, _path, json);
+  }
+}
+void updateStatusSensor(String _nodePath, String _value) {
+  String _path = "users/" + uid + "/sensor_status";
+  json.set(_nodePath, _value);
+  Serial.println("updating " + _nodePath + " " + String(_value));
+  if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
+    Firebase.updateNode(fbdoPush, _path, json);
+  }
+}
 void updateGrafik(String _typeSensor, String _value) {
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
     FirebaseJson json;
@@ -150,15 +167,7 @@ void deleteGrafikDataLastOneDay() {
     }
   }
 }
-void updateWhenPompaPenChange(bool _state) {
-  String _path = "users/" + uid + "/sensor_status";
-  String _pompaStats =  _state ? "HIDUP" : "MATI";
-  json.set("/pompaPenyiraman", _pompaStats);
-  Serial.println("updating stats penyiraman " + String(_pompaStats));
-  if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
-    Firebase.updateNode(fbdoPush, _path, json);
-  }
-}
+
 
 void updateGrafikToFirebase() {
   if (globalMinute -  savedUpGrafikState >= 1)
@@ -176,12 +185,4 @@ void handleGrafik() {
   if (debug) Serial.println("handle..");
   updateGrafikToFirebase();
   deleteGrafikDataLastOneDay();
-}
-
-void sendStatsPenyiraman() {
-  if (updatePenyiramanStats) {
-    updatePenyiramanStats = false;
-    updateGrafik("statusPompaPenyiraman", String(penyiramanStats));
-    updateWhenPompaPenChange(penyiramanStats);
-  }
 }

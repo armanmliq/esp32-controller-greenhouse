@@ -7,14 +7,14 @@ long epochNow = 0;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
-void updateGlobalVarTime(){
+void updateGlobalVarTime() {
   DateTime now = rtc.now();
   globalSec = now.second();
   globalMinute = now.minute();
   globalHour = now.hour();
   globalMonth = now.month();
   globalDay = now.day();
-  globalYear = now.year();  
+  globalYear = now.year();
   globalEpoch = now.unixtime() + (7 * 3600);
 }
 
@@ -42,41 +42,52 @@ void updateNtp() {
   }
 }
 
-void syncRtc(){
-   if(!(time(nullptr) > 1618971013)){
-      return;
-    }
-    
-    int dayNtp = day(timeClient.getEpochTime() + offsetGmt);
-    int monthNtp = month(timeClient.getEpochTime() + offsetGmt);
-    int yearNtp = year(timeClient.getEpochTime() + offsetGmt);
-    int hourNtp = hour(timeClient.getEpochTime() + offsetGmt);
-    int secondNtp = second(timeClient.getEpochTime() + offsetGmt);
-    int minuteNtp = minute(timeClient.getEpochTime() + offsetGmt);
-    if(yearNtp < 2022){return;}
-    rtc.adjust(DateTime(yearNtp, monthNtp, dayNtp, hourNtp, minuteNtp, secondNtp));
+void syncRtc() {
+  if (!(time(nullptr) > 1618971013)) {
+    return;
+  }
+
+  int dayNtp = day(timeClient.getEpochTime() + offsetGmt);
+  int monthNtp = month(timeClient.getEpochTime() + offsetGmt);
+  int yearNtp = year(timeClient.getEpochTime() + offsetGmt);
+  int hourNtp = hour(timeClient.getEpochTime() + offsetGmt);
+  int secondNtp = second(timeClient.getEpochTime() + offsetGmt);
+  int minuteNtp = minute(timeClient.getEpochTime() + offsetGmt);
+  if (yearNtp < 2022) {
+    return;
+  }
+  rtc.adjust(DateTime(yearNtp, monthNtp, dayNtp, hourNtp, minuteNtp, secondNtp));
 }
 
 byte savedDay;
-void eventDayChange(){
-    if(globalDay != savedDay)
-    {
-      savedDay = globalDay;
-      updateNtp();
-      syncRtc();
-    }
+void eventDayChange() {
+  if (globalDay != savedDay)
+  {
+    savedDay = globalDay;
+    updateNtp();
+    syncRtc();
+  }
 }
 
 unsigned lastSec;
 bool xState;
-void eventSecondChange(){
-  if(millis() - lastSec >= 1000){
+byte tickDetect;
+void eventSecondChange() {
+  if (millis() - lastSec >= 1000) {
     lastSec = millis();
     readSensor();
-    detectChangePenyiraman();
-    CheckSchedulePenyiraman();
-    CheckSchedulePpm();
+    //    CheckSchedulePenyiraman();
+    //    CheckSchedulePpm();
     displaySensor();
     displayInfo();
+
+    //detectChange every x tick
+    tickDetect ++;
+    if (tickDetect > 9) {
+      tickDetect = 0;
+      Serial.println("detectChangeAllSensor");
+      detectChangeAllSensor();
+    }
+
   }
 }

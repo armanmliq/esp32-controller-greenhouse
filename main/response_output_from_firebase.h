@@ -30,6 +30,7 @@ void toOutputResponse(String path, String _data) {
 
   } else if (path.indexOf("set_pompa_penyiraman") > -1) {
     if (_data == "HIDUP") {
+      Serial.println("RelayPompaPenyiramanPin");
       digitalWrite(RelayPompaPenyiramanPin, 1);
     } else {
       digitalWrite(RelayPompaPenyiramanPin, 0);
