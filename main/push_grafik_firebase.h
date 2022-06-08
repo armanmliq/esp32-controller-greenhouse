@@ -1,7 +1,9 @@
 bool debug = false;
 FirebaseData fbdoDelete;
 FirebaseData fbdoPush;
+FirebaseData fbdoPushParam;
 FirebaseJson json;
+FirebaseJson jsonParam;
 
 bool isQuerySettedPh        = false;
 bool isQuerySettedPpm       = false;
@@ -14,6 +16,15 @@ int valDeleteAtOnce = 10;
 byte savedUpGrafikState;
 byte savedDeleteUpGrafikState;
 
+void updateSetParameter(String _nodePath, bool _state) {
+  String _pathParameter = "users/" + uid + "/set_parameter";
+  String _pompaStats =  _state ? "HIDUP" : "MATI"; 
+  jsonParam.set(_nodePath, _pompaStats);
+  Serial.println("updating " + _pathParameter + " " + _nodePath + String(_pompaStats));
+  if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
+    Firebase.updateNode(fbdoPushParam, _pathParameter, jsonParam);
+  }
+}
 void updateStatusPompa(String _nodePath, bool _state) {
   String _path = "users/" + uid + "/sensor_status";
   String _pompaStats =  _state ? "HIDUP" : "MATI";
@@ -23,6 +34,7 @@ void updateStatusPompa(String _nodePath, bool _state) {
     Firebase.updateNode(fbdoPush, _path, json);
   }
 }
+
 void updateStatusSensor(String _nodePath, String _value) {
   String _path = "users/" + uid + "/sensor_status";
   json.set(_nodePath, _value);
@@ -45,7 +57,7 @@ void updateGrafik(String _typeSensor, String _value) {
       else if (debug) Serial.println(fbdoPush.errorReason());
   } else {
     if (debug) Serial.println("failed update at wifi disconn");
-  } 
+  }
 }
 
 void setQueryRules() {
@@ -123,10 +135,6 @@ void updateAllGrafik() {
   updateGrafik("temp", String(sensTempRoom));
   updateGrafik("waterTemp", String(sensTempWater));
 }
-
-
-
-
 void coreDeleteGrafik() {
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
     if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/ph", "ts", valDeleteAtOnce , deleteLastSecond ))

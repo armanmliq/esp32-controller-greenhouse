@@ -4,33 +4,28 @@ void toOutputResponse(String path, String _data) {
   if (path.indexOf("set_mode_ph") > -1)
   {
     preferences.putString("modePh", _data);
-    modePhStr = _data;
+    parsingModePh(_data);
     setDispIndex(0);
 
   } else if (path.indexOf("set_mode_ppm") > -1) {
     preferences.putString("modePpm", _data);
-    modePpmStr = _data;
+    parsingModePpm(_data);
     setDispIndex(1);
 
 
   } else if (path.indexOf("set_ph") > -1) {
     preferences.putString("targetPh", _data);
-    targetPhStr = _data;
-    targetPh = targetPhStr.toFloat();
-    validationTargetPhPpm();
+    parsingTargetPh(_data);
     setDispIndex(3);
 
 
   } else if (path.indexOf("set_ppm") > -1) {
     preferences.putString("targetPpm", _data);
-    targetPpmStr = _data;
-    targetPpm = targetPpmStr.toFloat();
-    validationTargetPhPpm();
+    parsingTargetPpm(_data);
     setDispIndex(2);
 
   } else if (path.indexOf("set_pompa_penyiraman") > -1) {
     if (_data == "HIDUP") {
-      Serial.println("RelayPompaPenyiramanPin");
       digitalWrite(RelayPompaPenyiramanPin, 1);
     } else {
       digitalWrite(RelayPompaPenyiramanPin, 0);
@@ -43,21 +38,36 @@ void toOutputResponse(String path, String _data) {
     }
   } else if (path.indexOf("set_dosing_pump_ph_up") > -1) {
     if (_data == "HIDUP") {
-      Serial.println("HIDUP RelayPompaPhUpPin");
       digitalWrite(RelayPompaPhUpPin, 1);
-      delay(1000);
     } else {
       digitalWrite(RelayPompaPhUpPin, 0);
     }
   } else if (path.indexOf("set_dosing_pump_ppm") > -1) {
     if (_data == "HIDUP") {
+      Serial.println("HIDUP RelayPompaPpm");
       digitalWrite(RelayPompaPpmUpPin, 1);
     } else {
       digitalWrite(RelayPompaPpmUpPin, 0);
     }
+  } else if (path.indexOf("set_pompa_pengisian") > -1) {
+    if (_data == "HIDUP") {
+      digitalWrite(RelayPompaPengisianPin, 1);
+    } else {
+      digitalWrite(RelayPompaPengisianPin, 0);
+    }
+  } else if (path.indexOf("set_batas_margin_ph") > -1) {
+    preferences.putString("batasMarginPh", _data);
+    parsingBatasMarginPh(_data);
+  } else if (path.indexOf("set_interval_on") > -1) {
+    preferences.putString("intervalOn", _data);
+    parsingIntervalOn(_data);
+  } else if (path.indexOf("set_interval_off") > -1) {
+    preferences.putString("intervalOff", _data);
+    parsingIntervalOff(_data);
+  } else if (path.indexOf("set_interval_limit") > -1) {
+    preferences.putString("intervalLimit", _data);
+    parsingIntervalLimit(_data);
   }
-
-
   else {
     Serial.println("wrong path > " + String( path.indexOf("scheduler_jadwal_penyiraman")));
   }

@@ -1,5 +1,3 @@
-#include "json.h"
-
 #define API_KEY "AIzaSyBwu8sXyJOM-uu-NB9kfjNkIrnDkMKPoco"
 #define DATABASE_URL "https://esp32-7fe29-default-rtdb.firebaseio.com"
 #define USER_EMAIL "armanmaliq92@gmail.com"
@@ -7,7 +5,7 @@
 
 unsigned long sendDataPrevMillis = 0;
 String MainPathsetParameter = "/users/" + uid + "/set_parameter/";
-String childPathSetParameter[11] = {"set_dosing_pump_ppm", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_irigasi" , "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_dosing_pump_ph_down", "set_dosing_pump_ph_up"};
+String childPathSetParameter[14] = {"set_batas_margin_ph","set_interval_off","set_interval_on","set_dosing_pump_ppm", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_dosing_pump_ph_down", "set_dosing_pump_ph_up","set_pompa_pengisian"};
 
 FirebaseData fbdo;
 FirebaseData streamParameter;

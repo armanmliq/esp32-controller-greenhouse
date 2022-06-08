@@ -22,19 +22,37 @@ String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 
 byte dispIndex;
 unsigned int offsetGmt = 3600 * 7;//set parameter variable
-String schPenyiramanStr, schPpmStr, manualPhDownStr, manualPhUpStr, modePhStr, modePpmStr, targetPhStr, targetPpmStr, manualPpmUpStr = "";
+String schPenyiramanStr, schPpmStr, manualPhDownStr, manualPhUpStr, targetPhStr, targetPpmStr, manualPpmUpStr = "";
 float sensPh, sensPpm, sensHumidity, sensTempWater, sensTempRoom, sensWaterTemp;
-float targetPh, targetPpm;
+
+String modePhStr = "OTOMATIS";
+String modePpmStr = "OTOMATIS";
+float targetPh = 5;
+float targetPpm = 800;
+float batasMarginPh = 0.5;
+unsigned long intervalLimit = 1000 * 60 * 120; //Limit lama on pompa (safety off) 120 menit
+unsigned int intervalOn = 1000 * 6; // lama on
+unsigned int intervalOff = 1000 * 2; // lama off
+int maksPpm = 1200;
+unsigned int intervalPpmOn = intervalOn;
+unsigned int intervalPpmOff = intervalOff;
+unsigned int intervalPhOn = intervalOn;
+unsigned int intervalPhOff = intervalOff;
+unsigned int maksIntervalOn = 1000 * 30; //30 detik
+unsigned int maksIntervalOff = 1000 * 30; ///30 detik
+unsigned long maksIntervalLimit = 1000 * 60 * 120; // 120 minute
+
+
 float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp;
 bool savedStatsPengisian, savedStatsPpmUp, savedStatsPhUp, savedStatsPhDown;
 bool updatePengisianStats, updatePpmStats, updatePhStats, updateHumidityStats, updateWaterTempStats, updateTempRoomStats, updatePpmUpStats, updatePhUpStats, updatePhDownStats;
-bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats,pompaPenyiramanStats;
+bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats, pompaPenyiramanStats;
 bool RelayPompaPenyiraman, RelayPhUp, RelayPhDown, RelayPpm;
 byte RelayPompaPhUpPin = 14;
 byte RelayPompaPhDownPin = 5;
-byte RelayPompaPpmUpPin = 17;
+byte RelayPompaPpmUpPin = 20;
 byte RelayPompaPenyiramanPin = 18;
-byte RelayPompaPengisianPin = 15;
+byte RelayPompaPengisianPin = 19;
 byte floatStatus;
 byte floatSensorPin = 16;
 
@@ -43,17 +61,19 @@ bool savedStatsPenyiraman, penyiramanStats, updatePenyiramanStats;
 byte globalSec, globalMinute, globalHour, globalDay, globalMonth;
 int globalYear;
 unsigned long globalEpoch;
+String intervalOnStr, intervalOffStr, intervalLimitStr, batasMarginPhStr;
 
+#include "json.h"
 #include "preferences.h"
 #include "lcd.h"
 #include "sensor.h"
 #include "response_output_from_firebase.h"
 #include "firebase.h"
+#include "preferences_start.h"
 #include "push_grafik_firebase.h"
 #include "push_sensor_change.h"
 #include "datetime.h"
 #include "wifi_event.h"
-#include "preferences_start.h"
 #include "at_serial.h"
 
 void setup()
@@ -73,12 +93,13 @@ void setup()
   preferences.begin("my-app", false);
 
   //set output mode
+  pinMode(RelayPompaPengisianPin, OUTPUT);
   pinMode(RelayPompaPenyiramanPin, OUTPUT);
   pinMode(RelayPompaPhUpPin, OUTPUT);
   pinMode(RelayPompaPhDownPin, OUTPUT);
   pinMode(RelayPompaPpmUpPin, OUTPUT);
   pinMode(floatSensorPin, INPUT);
-  pinMode(RelayPompaPengisianPin, HIGH);
+
 
   //begin wifi
   WiFi.mode(WIFI_STA);
@@ -132,7 +153,6 @@ void setup()
 
 void loop()
 {
-//  Serial.println(digitalRead(RelayPompaPhUpPin));
   limitAll();
   eventDayChange();
   eventSecondChange();

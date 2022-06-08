@@ -28,7 +28,7 @@ void detectChangePhDown() {
 }
 void detectChangePpmUp() {
   pompaPpmUpStats = digitalRead(RelayPompaPpmUpPin);
-  if (pompaPpmUpStats != savedStatsPhDown) {
+  if (pompaPpmUpStats != savedStatsPpmUp) {
     savedStatsPpmUp = pompaPpmUpStats;
     updatePpmUpStats = 1;
   }
@@ -71,18 +71,23 @@ void sendStatsPenyiraman() {
     updatePenyiramanStats = false;
     updateGrafik("statusPompaPenyiraman", String(pompaPenyiramanStats));
     updateStatusPompa("pompaPenyiraman", pompaPenyiramanStats);
+    updateSetParameter("set_pompa_penyiraman", pompaPenyiramanStats);
   }
 }
 void sendStatsPengisian() {
   if (updatePengisianStats) {
     updatePengisianStats = false;
     updateStatusPompa("pompa_status", pompaPengisianStats);
+    updateSetParameter("set_pompa_pengisian", pompaPengisianStats);
   }
 }
 void sendStatsPhUp() {
   if (updatePhUpStats) {
-    updatePhUpStats = false;
+    Serial.println("updatePhUpStats true");
+    delay(1000);
     updateStatusPompa("pompaPhUpStatus", pompaPhUpStats);
+    updateSetParameter("set_dosing_pump_ph_up", pompaPengisianStats);
+    updatePhUpStats = false;
   }
 }
 
@@ -90,12 +95,16 @@ void sendStatsPhDown() {
   if (updatePhDownStats) {
     updatePhDownStats = false;
     updateStatusPompa("pompaPhDownStatus", pompaPhDownStats);
+    updateSetParameter("set_dosing_pump_ph_down", pompaPhDownStats);
   }
 }
 void sendStatsPpmUp() {
-  if (updatePhDownStats) {
-    updatePpmUpStats = false;
+  if (updatePpmUpStats) {
+    delay(300);
     updateStatusPompa("pompa_nutrisi_status", pompaPpmUpStats);
+    delay(300);
+    updateSetParameter("set_dosing_pump_ppm", pompaPpmUpStats);
+    updatePpmUpStats = false;
   }
 }
 void sendStatsPh() {

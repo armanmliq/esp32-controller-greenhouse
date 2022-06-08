@@ -3,13 +3,17 @@ bool beginNutrisiMixing;
 bool isFloatTrue, isFloatLimit, isPhMixingBegin, isPpmMixingBegin;
 byte batasAtasPh;
 byte batasBawahPh;
-float marginBatasPh = 0.5;
-
-unsigned int intervalPhOn = 5000;
-unsigned int intervalPhOff = 3000;
+bool lastStatsLimitPenyiraman;
+unsigned long lastMillisPenyiraman;
+bool lastStatsLimitPengisian;
+unsigned long lastMillisPengisian;
+bool lastStatsLimitPpmUp;
+unsigned long lastMillisPpmUp;
+bool lastStatsLimitPhDown;
+unsigned long lastMillisPhDown;
+bool lastStatsLimitPhUp;
+unsigned long lastMillisPhUp;
 unsigned int intervalPh;
-unsigned int intervalPpmOn = 5000;
-unsigned int intervalPpmOff = 3000;
 unsigned int intervalPpm;
 
 unsigned long phMillis, ppmMillis;
@@ -57,8 +61,8 @@ void detectForPhMixing() {
     if (!phMixingExcBeginning) {
       phMixingExcBeginning = true;
       intervalPh = intervalPhOn;
-      batasAtasPh = targetPh + marginBatasPh;
-      batasBawahPh = targetPh - marginBatasPh;
+      batasAtasPh = targetPh + batasMarginPh;
+      batasBawahPh = targetPh - batasMarginPh;
       if (sensPh > batasAtasPh) {
         isPhTooHigh = true;
         isPhTooLow = false;
@@ -179,9 +183,6 @@ void validationTargetPhPpm() {
   }
 }
 
-bool lastStatsLimitPenyiraman;
-unsigned long lastMillisPenyiraman;
-unsigned long intervalLimit = 1000 * 10;
 
 void limitActivePenyiraman() {
   if (pompaPenyiramanStats) {
@@ -201,8 +202,6 @@ void limitActivePenyiraman() {
   }
 }
 
-bool lastStatsLimitPhUp;
-unsigned long lastMillisPhUp;
 void limitActivePhUp() {
   if (pompaPhUpStats) {
     Serial.println("pompaPhUpStatsHIGH");
@@ -221,8 +220,6 @@ void limitActivePhUp() {
   }
 }
 
-bool lastStatsLimitPhDown;
-unsigned long lastMillisPhDown;
 void limitActivePhDown() {
   if (pompaPhDownStats) {
     Serial.println("pompaPhDownStatsHIGH");
@@ -242,8 +239,6 @@ void limitActivePhDown() {
 }
 
 
-bool lastStatsLimitPpmUp;
-unsigned long lastMillisPpmUp;
 void limitActivePpmUp() {
   if (pompaPpmUpStats) {
     Serial.println("pompaPpmUpStatsHIGH");
@@ -262,7 +257,23 @@ void limitActivePpmUp() {
   }
 }
 
-void limitAll(){
+void limitActivePengisian() {
+  if (pompaPengisianStats) {
+    if (pompaPengisianStats != lastStatsLimitPengisian) {
+      lastStatsLimitPengisian = pompaPengisianStats;
+      lastMillisPengisian = millis();
+    }
+    if (millis() - lastMillisPengisian > intervalLimit) {
+      digitalWrite(RelayPompaPengisianPin, LOW);
+      pompaPengisianStats = false;
+      Serial.println("limittt");
+    }
+  } else {
+    lastMillisPengisian = millis();
+  }
+}
+void limitAll() {
+  limitActivePengisian();
   limitActivePpmUp();
   limitActivePhDown();
   limitActivePhUp();

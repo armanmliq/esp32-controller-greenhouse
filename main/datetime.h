@@ -78,6 +78,7 @@ void eventSecondChange() {
     readSensor();
     //    CheckSchedulePenyiraman();
     //    CheckSchedulePpm();
+    printAllFromPrefs();
     displaySensor();
     displayInfo();
 
