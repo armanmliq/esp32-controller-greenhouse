@@ -10,15 +10,12 @@ bool isQuerySettedPpm       = false;
 bool isQuerySettedHumidity  = false;
 bool isQuerySettedTemp      = false;
 
-unsigned long deleteLastSecond = 2 * 24 * 3600;
-int intervalUpdateGrafik = 1;
-int valDeleteAtOnce = 10;
 byte savedUpGrafikState;
 byte savedDeleteUpGrafikState;
 
 void updateSetParameter(String _nodePath, bool _state) {
   String _pathParameter = "users/" + uid + "/set_parameter";
-  String _pompaStats =  _state ? "HIDUP" : "MATI"; 
+  String _pompaStats =  _state ? "HIDUP" : "MATI";
   jsonParam.set(_nodePath, _pompaStats);
   Serial.println("updating " + _pathParameter + " " + _nodePath + String(_pompaStats));
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
@@ -137,31 +134,29 @@ void updateAllGrafik() {
 }
 void coreDeleteGrafik() {
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
-    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/ph", "ts", valDeleteAtOnce , deleteLastSecond ))
+    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/ph", "ts", deleteGrafikItemAtOnce , deleteGrafikSecondExceedFrom ))
       if (debug) Serial.println("del ph ok");
       else if (debug) Serial.println(fbdoDelete.errorReason());
 
-    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/ppm", "ts", valDeleteAtOnce , deleteLastSecond ))
+    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/ppm", "ts", deleteGrafikItemAtOnce , deleteGrafikSecondExceedFrom ))
       if (debug) Serial.println("del ppm ok");
       else if (debug) Serial.println(fbdoDelete.errorReason());
 
-    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/humidity", "ts", valDeleteAtOnce , deleteLastSecond ))
+    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/humidity", "ts", deleteGrafikItemAtOnce , deleteGrafikSecondExceedFrom ))
       if (debug) Serial.println("del humidity ok");
       else if (debug) Serial.println(fbdoDelete.errorReason());
 
-    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/temp", "ts", valDeleteAtOnce , deleteLastSecond ))
+    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/temp", "ts", deleteGrafikItemAtOnce , deleteGrafikSecondExceedFrom ))
       if (debug) Serial.println("del ppm ok");
       else if (debug) Serial.println(fbdoDelete.errorReason());
 
-    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/humidity", "ts", valDeleteAtOnce , deleteLastSecond ))
+    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/humidity", "ts", deleteGrafikItemAtOnce , deleteGrafikSecondExceedFrom ))
       if (debug) Serial.println("del humidity ok");
       else if (debug) Serial.println(fbdoDelete.errorReason());
   } else {
     if (debug) Serial.println("avoid delete nodes at wifi disconnect");
   }
 }
-
-
 void deleteGrafikDataLastOneDay() {
   if (globalHour !=  savedDeleteUpGrafikState ) {
     if (debug) Serial.print("Delete history last data 2 day ... ");
@@ -174,8 +169,6 @@ void deleteGrafikDataLastOneDay() {
     }
   }
 }
-
-
 void updateGrafikToFirebase() {
   if (globalMinute -  savedUpGrafikState >= 1)
   {

@@ -34,27 +34,35 @@ unsigned long intervalLimit = 1000 * 60 * 120; //Limit lama on pompa (safety off
 unsigned int intervalOn = 1000 * 6; // lama on
 unsigned int intervalOff = 1000 * 2; // lama off
 int maksPpm = 1200;
-unsigned int intervalPpmOn = intervalOn;
-unsigned int intervalPpmOff = intervalOff;
-unsigned int intervalPhOn = intervalOn;
-unsigned int intervalPhOff = intervalOff;
+
+unsigned int intervalPh;
+unsigned int intervalPpm;
+unsigned int intervalOnPpm = intervalOn;
+unsigned int intervalOffPpm = intervalOff;
+unsigned int intervalOnPh = intervalOn;
+unsigned int intervalOffPh = intervalOff;
 unsigned int maksIntervalOn = 1000 * 30; //30 detik
 unsigned int maksIntervalOff = 1000 * 30; ///30 detik
 unsigned long maksIntervalLimit = 1000 * 60 * 120; // 120 minute
 
+unsigned long deleteGrafikSecondExceedFrom = 2 * 24 * 3600;
+int deleteGrafikItemAtOnce = 10;
+int intervalUpdateGrafik = 1;
+
+byte RelayPompaPhUpPin = 14;
+byte RelayPompaPhDownPin = 5;
+byte RelayPompaPpmUpPin = 20;
+byte RelayPompaPenyiramanPin = 18;
+byte RelayPompaPengisianPin = 19;
+byte floatSensorPin = 16;
 
 float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp;
 bool savedStatsPengisian, savedStatsPpmUp, savedStatsPhUp, savedStatsPhDown;
 bool updatePengisianStats, updatePpmStats, updatePhStats, updateHumidityStats, updateWaterTempStats, updateTempRoomStats, updatePpmUpStats, updatePhUpStats, updatePhDownStats;
 bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats, pompaPenyiramanStats;
 bool RelayPompaPenyiraman, RelayPhUp, RelayPhDown, RelayPpm;
-byte RelayPompaPhUpPin = 14;
-byte RelayPompaPhDownPin = 5;
-byte RelayPompaPpmUpPin = 20;
-byte RelayPompaPenyiramanPin = 18;
-byte RelayPompaPengisianPin = 19;
 byte floatStatus;
-byte floatSensorPin = 16;
+
 
 String myData = "";
 bool savedStatsPenyiraman, penyiramanStats, updatePenyiramanStats;
@@ -62,6 +70,13 @@ byte globalSec, globalMinute, globalHour, globalDay, globalMonth;
 int globalYear;
 unsigned long globalEpoch;
 String intervalOnStr, intervalOffStr, intervalLimitStr, batasMarginPhStr;
+
+
+byte tick;
+byte updateRate = 4;
+String dispTimeStr;
+float sensPhDisplay, sensPpmDisplay;
+
 
 #include "json.h"
 #include "preferences.h"
@@ -146,7 +161,6 @@ void setup()
   stream.setBSSLBufferSize(2048 , 512 );
 #endif
   begin_stream();
-
   updateNtp();
   parsingInternalData();
 }

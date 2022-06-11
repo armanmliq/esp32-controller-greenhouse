@@ -13,9 +13,6 @@ bool lastStatsLimitPhDown;
 unsigned long lastMillisPhDown;
 bool lastStatsLimitPhUp;
 unsigned long lastMillisPhUp;
-unsigned int intervalPh;
-unsigned int intervalPpm;
-
 unsigned long phMillis, ppmMillis;
 bool isToUp, isToDown;
 bool phMixingExcBeginning;
@@ -30,7 +27,7 @@ void setupForPhMixing() {
 }
 void setupForPpm() {
   isPpmMixingBegin = true;
-  intervalPpm = intervalPpmOn;
+  intervalPpm = intervalOnPpm;
   dispActivity("adjust nutrition abmix");
 }
 void detectForFilling() {
@@ -52,15 +49,13 @@ void detectForFilling() {
     if (modePhStr == "OTOMATIS") {
       setupForPhMixing();
     }
-
-
   }
 }
 void detectForPhMixing() {
   if (isPhMixingBegin) {
     if (!phMixingExcBeginning) {
       phMixingExcBeginning = true;
-      intervalPh = intervalPhOn;
+      intervalPh = intervalOnPh;
       batasAtasPh = targetPh + batasMarginPh;
       batasBawahPh = targetPh - batasMarginPh;
       if (sensPh > batasAtasPh) {
@@ -74,8 +69,6 @@ void detectForPhMixing() {
         dispActivity("ph mixing to " + String(targetPh));
       }
     }
-
-
     if (millis() - phMillis > intervalPh) {
       phMillis = millis();
       bool isPompaPhUpOn = digitalRead(RelayPompaPhUpPin);
@@ -92,10 +85,10 @@ void detectForPhMixing() {
           return;
         }
         if (isPompaPhUpOn) {
-          intervalPh = intervalPhOff;
+          intervalPh = intervalOffPh;
           digitalWrite(RelayPompaPhUpPin, LOW);
         } else {
-          intervalPh = intervalPhOn;
+          intervalPh = intervalOnPh;
           digitalWrite(RelayPompaPhUpPin, HIGH);
         }
         digitalWrite(RelayPompaPhDownPin, LOW);
@@ -111,10 +104,10 @@ void detectForPhMixing() {
           return;
         }
         if (isPompaPhDownOn) {
-          intervalPh = intervalPhOff;
+          intervalPh = intervalOffPh;
           digitalWrite(RelayPompaPhDownPin, LOW);
         } else {
-          intervalPh = intervalPhOn;
+          intervalPh = intervalOnPh;
           digitalWrite(RelayPompaPhDownPin, HIGH);
         }
         digitalWrite(RelayPompaPhUpPin, LOW);
@@ -122,7 +115,6 @@ void detectForPhMixing() {
     }
   }
 }
-
 void detectForPpmMixing() {
   if (isPpmMixingBegin) {
     if (sensPpm > targetPpm) {
@@ -135,17 +127,15 @@ void detectForPpmMixing() {
       ppmMillis = millis();
       bool isPompaPpmOn = digitalRead(RelayPompaPpmUpPin);
       if (isPompaPpmOn) {
-        intervalPpm = intervalPpmOff;
+        intervalPpm = intervalOffPpm;
         digitalWrite(RelayPompaPpmUpPin, LOW);
       } else {
-        intervalPpm = intervalPpmOn;
+        intervalPpm = intervalOnPpm;
         digitalWrite(RelayPompaPpmUpPin, HIGH);
       }
     }
   }
 }
-
-
 void readPh() {
   sensPh = random(4, 6);
 }
@@ -182,11 +172,9 @@ void validationTargetPhPpm() {
     targetPpm = 1000;
   }
 }
-
-
 void limitActivePenyiraman() {
   if (pompaPenyiramanStats) {
-    Serial.println("pompaPenyiramanStatsHIGH");
+    //    Serial.println("pompaPenyiramanStatsHIGH");
     delay(100);
     if (pompaPenyiramanStats != lastStatsLimitPenyiraman) {
       lastStatsLimitPenyiraman = pompaPenyiramanStats;
@@ -201,10 +189,9 @@ void limitActivePenyiraman() {
     lastMillisPenyiraman = millis();
   }
 }
-
 void limitActivePhUp() {
   if (pompaPhUpStats) {
-    Serial.println("pompaPhUpStatsHIGH");
+    //    Serial.println("pompaPhUpStatsHIGH");
     delay(100);
     if (pompaPhUpStats != lastStatsLimitPhUp) {
       lastStatsLimitPhUp = pompaPhUpStats;
@@ -219,10 +206,9 @@ void limitActivePhUp() {
     lastMillisPhUp = millis();
   }
 }
-
 void limitActivePhDown() {
   if (pompaPhDownStats) {
-    Serial.println("pompaPhDownStatsHIGH");
+    //    Serial.println("pompaPhDownStatsHIGH");
     delay(100);
     if (pompaPhDownStats != lastStatsLimitPhDown) {
       lastStatsLimitPhDown = pompaPhDownStats;
@@ -241,7 +227,7 @@ void limitActivePhDown() {
 
 void limitActivePpmUp() {
   if (pompaPpmUpStats) {
-    Serial.println("pompaPpmUpStatsHIGH");
+    //    Serial.println("pompaPpmUpStatsHIGH");
     delay(100);
     if (pompaPpmUpStats != lastStatsLimitPpmUp) {
       lastStatsLimitPpmUp = pompaPpmUpStats;
@@ -256,7 +242,6 @@ void limitActivePpmUp() {
     lastMillisPpmUp = millis();
   }
 }
-
 void limitActivePengisian() {
   if (pompaPengisianStats) {
     if (pompaPengisianStats != lastStatsLimitPengisian) {

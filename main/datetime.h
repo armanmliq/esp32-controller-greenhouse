@@ -1,5 +1,9 @@
 char daysOfTheWeek[7][12] = {"minggu", "senin", "selasal", "rabu", "kamis", "jumat", "sabtu"};
-
+byte savedDay;
+unsigned lastSec;
+byte tickDetect = 100;
+byte tickDisplaySensor = 100;
+byte tickReadSensor = 100;
 long epochNow = 0;
 
 #include <NTPClient.h>
@@ -17,7 +21,14 @@ void updateGlobalVarTime() {
   globalYear = now.year();
   globalEpoch = now.unixtime() + (7 * 3600);
 }
-
+void printStatsPompa() {
+  bool phUpStats = digitalRead(RelayPompaPhUpPin);
+  bool phDownStats = digitalRead(RelayPompaPhDownPin);
+  bool ppmUpStats = digitalRead(RelayPompaPpmUpPin);
+  bool penyiramanStats = digitalRead(RelayPompaPenyiramanPin);
+  bool pengisianStats = digitalRead(RelayPompaPengisianPin);
+  Serial.println("phUp:" + String(phUpStats) + " phDown:" + String(phDownStats) + " ppmUp:" + String(ppmUpStats) + " penyiraman:" + String(penyiramanStats) + " pengisian:" + String(pengisianStats));
+}
 void digitalClockDisplay() {
   DateTime now = rtc.now();
   Serial.print(now.unixtime());
@@ -46,7 +57,6 @@ void syncRtc() {
   if (!(time(nullptr) > 1618971013)) {
     return;
   }
-
   int dayNtp = day(timeClient.getEpochTime() + offsetGmt);
   int monthNtp = month(timeClient.getEpochTime() + offsetGmt);
   int yearNtp = year(timeClient.getEpochTime() + offsetGmt);
@@ -59,7 +69,8 @@ void syncRtc() {
   rtc.adjust(DateTime(yearNtp, monthNtp, dayNtp, hourNtp, minuteNtp, secondNtp));
 }
 
-byte savedDay;
+
+
 void eventDayChange() {
   if (globalDay != savedDay)
   {
@@ -69,26 +80,36 @@ void eventDayChange() {
   }
 }
 
-unsigned lastSec;
-bool xState;
-byte tickDetect;
+
 void eventSecondChange() {
-  if (millis() - lastSec >= 1000) {
+  if (millis() - lastSec >= 1000)
+  {
     lastSec = millis();
     readSensor();
-    //    CheckSchedulePenyiraman();
-    //    CheckSchedulePpm();
-    printAllFromPrefs();
-    displaySensor();
     displayInfo();
+    printStatsPompa();
+    
+    tickReadSensor ++;
+    if (tickReadSensor > 10) {
+      tickReadSensor = 0;
+      readSensor();
+    }
+
+    tickDisplaySensor ++;
+    if (tickDisplaySensor > 10) {
+      tickDisplaySensor = 0;
+      sensPhDisplay = sensPh;
+      sensPpmDisplay = sensPpm;
+      displaySensor();
+    }
 
     //detectChange every x tick
     tickDetect ++;
-    if (tickDetect > 9) {
+    if (tickDetect > 10)
+    {
       tickDetect = 0;
       Serial.println("detectChangeAllSensor");
       detectChangeAllSensor();
     }
-
   }
 }

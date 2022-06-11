@@ -1,7 +1,3 @@
-byte tick;
-byte updateRate = 4;
-String dispTimeStr;
-
 void displayTime() {
   dispTimeStr = "";
   if (globalHour < 10) {
@@ -16,19 +12,16 @@ void displayTime() {
   lcd.print(dispTimeStr);
 }
 void displaySensor() {
-
   lcd.setCursor(0, 0);
   lcd.print("                    ");
   lcd.setCursor(0, 0);
-  lcd.print("ph  :" + String(sensPh,1) + " pH");
+  lcd.print("ph  :" + String(sensPhDisplay, 1) + " pH");
   lcd.setCursor(15, 0);
-
   displayTime();
-
   lcd.setCursor(0, 1);
   lcd.print("                    ");
   lcd.setCursor(0, 1);
-  lcd.print("tds :" + String(sensPpm,0) + " ppm");
+  lcd.print("tds :" + String(sensPpmDisplay, 0) + " ppm");
 }
 
 void setDispIndex(byte _dispIndex) {
@@ -61,18 +54,17 @@ void displayInfo() {
       lcd.setCursor(0, 2);
       lcd.print("                    ");
       lcd.setCursor(0, 2);
-      lcd.print("target ppm:" + targetPpmStr);
+      lcd.print("target ppm:" + String(targetPpm, 0));
       break;
     case 3:
       lcd.setCursor(0, 2);
       lcd.print("                    ");
       lcd.setCursor(0, 2);
-      lcd.print("target ph:" + targetPhStr);
+      lcd.print("target ph:" + String(targetPh, 1));
       break;
   }
 }
 void dispActivity(String _text) {
-
   lcd.setCursor(0, 3);
   lcd.print("                    ");
   lcd.setCursor(0, 3);

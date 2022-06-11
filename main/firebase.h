@@ -5,7 +5,7 @@
 
 unsigned long sendDataPrevMillis = 0;
 String MainPathsetParameter = "/users/" + uid + "/set_parameter/";
-String childPathSetParameter[14] = {"set_batas_margin_ph","set_interval_off","set_interval_on","set_dosing_pump_ppm", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_dosing_pump_ph_down", "set_dosing_pump_ph_up","set_pompa_pengisian"};
+String childPathSetParameter[17] = {"set_batas_margin_ph","set_interval_off_ph","set_interval_off_ppm","set_interval_on_ppm","set_interval_on_ph","set_pompa_ppm_up", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_pompa_ph_down", "set_pompa_ph_up","set_pompa_pengisian"};
 
 FirebaseData fbdo;
 FirebaseData streamParameter;

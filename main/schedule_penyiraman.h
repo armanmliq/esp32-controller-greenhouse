@@ -13,7 +13,6 @@ void parseSchedulePenyiraman(String date, String _lamaPenyiraman)
     int _year = globalYear;
     int _hour = date.substring(10, 12).toInt();
     int _min = date.substring(13, 15).toInt();
-    
     time_penyiraman.Second = 0;
     time_penyiraman.Hour = _hour;
     time_penyiraman.Minute = _min;
