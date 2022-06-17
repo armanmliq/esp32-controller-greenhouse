@@ -1,9 +1,11 @@
-bool debug = false;
 FirebaseData fbdoDelete;
 FirebaseData fbdoPush;
 FirebaseData fbdoPushParam;
 FirebaseJson json;
 FirebaseJson jsonParam;
+
+bool debug = false;
+
 
 bool isQuerySettedPh        = false;
 bool isQuerySettedPpm       = false;
@@ -13,29 +15,10 @@ bool isQuerySettedTemp      = false;
 byte savedUpGrafikState;
 byte savedDeleteUpGrafikState;
 
-void updateSetParameter(String _nodePath, bool _state) {
-  String _pathParameter = "users/" + uid + "/set_parameter";
-  String _pompaStats =  _state ? "HIDUP" : "MATI";
-  jsonParam.set(_nodePath, _pompaStats);
-  Serial.println("updating " + _pathParameter + " " + _nodePath + String(_pompaStats));
-  if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
-    Firebase.updateNode(fbdoPushParam, _pathParameter, jsonParam);
-  }
-}
-void updateStatusPompa(String _nodePath, bool _state) {
-  String _path = "users/" + uid + "/sensor_status";
-  String _pompaStats =  _state ? "HIDUP" : "MATI";
-  json.set(_nodePath, _pompaStats);
-  Serial.println("updating " + _nodePath + String(_pompaStats));
-  if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
-    Firebase.updateNode(fbdoPush, _path, json);
-  }
-}
-
-void updateStatusSensor(String _nodePath, String _value) {
-  String _path = "users/" + uid + "/sensor_status";
+void pushFirebase(String _nodePath, String _value,String _MainPath) {
+  String _path = "users/" + uid + "/"+_MainPath;
   json.set(_nodePath, _value);
-  Serial.println("updating " + _nodePath + " " + String(_value));
+  Serial.println("updating >>> " + _nodePath + " " + String(_value));
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
     Firebase.updateNode(fbdoPush, _path, json);
   }

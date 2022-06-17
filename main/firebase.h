@@ -40,8 +40,6 @@ void streamCallbackParameter(MultiPathStreamData stream)
     }
   }
 }
-
-
 void streamTimeoutCallbackParameter(bool timeout)
 {
   if (timeout)

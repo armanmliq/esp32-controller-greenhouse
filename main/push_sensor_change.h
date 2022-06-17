@@ -1,3 +1,9 @@
+void detectChangeTargetPpm() {
+  if (targetPpm != savedStatsTargetPpm) { 
+    savedStatsTargetPpm = targetPpm;
+    updateTargetPpmStats = 1;
+  }
+}
 void detectChangePenyiraman() {
   pompaPenyiramanStats = digitalRead(RelayPompaPenyiramanPin);
   if (pompaPenyiramanStats != savedStatsPenyiraman) {
@@ -60,33 +66,40 @@ void detectChangeTempRoom() {
 }
 
 void detectChangeWaterTemp() {
-  if (sensWaterTemp != savedStatsWaterTemp) {
-    savedStatsWaterTemp = sensWaterTemp;
+  if (sensTempWater != savedStatsWaterTemp) {
+    savedStatsWaterTemp = sensTempWater;
     updateWaterTempStats = 1;
   }
 }
-
+//========================================================================
+void sendStatsTargetPpm() {
+  if (updateTargetPpmStats) {
+    pushFirebase("set_ppm", String(targetPpm,0), "set_parameter");
+    updateTargetPpmStats = 0;
+  }
+}
 void sendStatsPenyiraman() {
   if (updatePenyiramanStats) {
     updatePenyiramanStats = false;
+    String _pompaStats =  pompaPenyiramanStats ? "HIDUP" : "MATI";
     updateGrafik("statusPompaPenyiraman", String(pompaPenyiramanStats));
-    updateStatusPompa("pompaPenyiraman", pompaPenyiramanStats);
-    updateSetParameter("set_pompa_penyiraman", pompaPenyiramanStats);
+    pushFirebase("pompaPenyiraman", _pompaStats, "sensor_status");
+    pushFirebase("set_pompa_penyiraman", _pompaStats,  "set_parameter");
   }
 }
 void sendStatsPengisian() {
   if (updatePengisianStats) {
     updatePengisianStats = false;
-    updateStatusPompa("pompa_status", pompaPengisianStats);
-    updateSetParameter("set_pompa_pengisian", pompaPengisianStats);
+    String _pompaStats =  pompaPenyiramanStats ? "HIDUP" : "MATI";
+    pushFirebase("pompa_status", _pompaStats, "sensor_status");
+    pushFirebase("set_pompa_pengisian", _pompaStats, "set_parameter");
   }
 }
 void sendStatsPhUp() {
   if (updatePhUpStats) {
-    Serial.println("updatePhUpStats true");
-    delay(1000);
-    updateStatusPompa("pompaPhUpStatus", pompaPhUpStats);
-    updateSetParameter("set_dosing_pump_ph_up", pompaPengisianStats);
+    String _pompaStats =  pompaPengisianStats ? "HIDUP" : "MATI";
+    pushFirebase("pompaPhUpStatus", _pompaStats,  "sensor_status");
+    pushFirebase("set_dosing_pump_ph_up", _pompaStats, "set_parameter");
     updatePhUpStats = false;
   }
 }
@@ -94,53 +107,55 @@ void sendStatsPhUp() {
 void sendStatsPhDown() {
   if (updatePhDownStats) {
     updatePhDownStats = false;
-    updateStatusPompa("pompaPhDownStatus", pompaPhDownStats);
-    updateSetParameter("set_dosing_pump_ph_down", pompaPhDownStats);
+    String _pompaStats =  pompaPhDownStats ? "HIDUP" : "MATI";
+    pushFirebase("pompaPhDownStatus", _pompaStats, "sensor_status");
+    pushFirebase("set_dosing_pump_ph_down", _pompaStats, "set_parameter");
   }
 }
 void sendStatsPpmUp() {
-  if (updatePpmUpStats) {
-    delay(300);
-    updateStatusPompa("pompa_nutrisi_status", pompaPpmUpStats);
-    delay(300);
-    updateSetParameter("set_dosing_pump_ppm", pompaPpmUpStats);
+  if (updatePpmUpStats)
+  {
+    String _pompaStats =  pompaPhDownStats ? "HIDUP" : "MATI";
+    pushFirebase("pompa_nutrisi_status", _pompaStats,"sensor_status");
+    pushFirebase("set_dosing_pump_ppm", _pompaStats, "set_parameter");
     updatePpmUpStats = false;
   }
 }
 void sendStatsPh() {
   if (updatePhStats) {
     updatePhStats = false;
-    updateStatusSensor("ph", String(sensPh, 1));
+    //("ph", String(sensPh, 1));
   }
 }
 void sendStatsPpm() {
   if (updatePpmStats) {
     updatePpmStats = false;
-    updateStatusSensor("ppm", String(sensPpm, 0));
+    pushFirebase("ppm", String(sensPpm, 0), "sensor_status");
   }
 }
 
 void sendStatsHumidity() {
   if (updateHumidityStats) {
     updateHumidityStats = false;
-    updateStatusSensor("humidity", String(sensHumidity, 1));
+    pushFirebase("humidity", String(sensHumidity, 1), "sensor_status");
   }
 }
 void sendStatsWaterTemp() {
   if (updateWaterTempStats) {
     updateWaterTempStats = false;
-    updateStatusSensor("temperatureWater", String(sensWaterTemp, 1));
+    pushFirebase("temperatureWater", String(sensTempWater, 1), "sensor_status");
   }
 }
 void sendStatsTempRoom() {
   if (updateTempRoomStats) {
     updateTempRoomStats = false;
-    updateStatusSensor("temperature", String(sensTempRoom, 1));
+    pushFirebase("temperature", String(sensTempRoom, 1), "sensor_status");
   }
 }
 
 
 void sendAllStats() {
+  sendStatsTargetPpm();
   sendStatsPenyiraman();
   sendStatsPengisian();
   sendStatsPhUp();
@@ -153,6 +168,7 @@ void sendAllStats() {
   sendStatsTempRoom();
 }
 void detectChangeAllSensor() {
+  detectChangeTargetPpm();
   detectChangePenyiraman();
   detectChangePengisian();
   detectChangePhUp();

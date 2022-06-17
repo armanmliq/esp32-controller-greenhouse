@@ -16,6 +16,18 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 #include "RTClib.h"
 RTC_DS3231 rtc;
 
+//tds
+float tdsValue;
+#include "RddTDS.h"
+RddTDS tds;
+#define TdsSensorPin 34
+
+//temp
+#include <DallasTemperature.h>
+#define ONE_WIRE_BUS 23 
+OneWire wireSuhu(ONE_WIRE_BUS);
+DallasTemperature sensorSuhu(&wireSuhu);
+
 String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 #define WIFI_SSID "AMI"
 #define WIFI_PASSWORD "admin.admin"
@@ -23,7 +35,7 @@ String uid = "OoQcNgqaBqchpWRjwe9PRw6n3tb2";
 byte dispIndex;
 unsigned int offsetGmt = 3600 * 7;//set parameter variable
 String schPenyiramanStr, schPpmStr, manualPhDownStr, manualPhUpStr, targetPhStr, targetPpmStr, manualPpmUpStr = "";
-float sensPh, sensPpm, sensHumidity, sensTempWater, sensTempRoom, sensWaterTemp;
+float sensPh, sensPpm, sensHumidity, sensTempWater, sensTempRoom;
 
 String modePhStr = "OTOMATIS";
 String modePpmStr = "OTOMATIS";
@@ -56,13 +68,13 @@ byte RelayPompaPenyiramanPin = 18;
 byte RelayPompaPengisianPin = 19;
 byte floatSensorPin = 16;
 
-float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp;
+float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp,savedStatsTargetPpm;
 bool savedStatsPengisian, savedStatsPpmUp, savedStatsPhUp, savedStatsPhDown;
-bool updatePengisianStats, updatePpmStats, updatePhStats, updateHumidityStats, updateWaterTempStats, updateTempRoomStats, updatePpmUpStats, updatePhUpStats, updatePhDownStats;
-bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats, pompaPenyiramanStats;
+bool updatePengisianStats, updatePpmStats, updatePhStats, updateHumidityStats, updateWaterTempStats, updateTempRoomStats, updatePpmUpStats, updatePhUpStats, updatePhDownStats,updateTargetPpmStats;
+bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats, pompaPenyiramanStats,targetPpmStats;
+
 bool RelayPompaPenyiraman, RelayPhUp, RelayPhDown, RelayPpm;
 byte floatStatus;
-
 
 String myData = "";
 bool savedStatsPenyiraman, penyiramanStats, updatePenyiramanStats;
@@ -80,11 +92,11 @@ float sensPhDisplay, sensPpmDisplay;
 
 #include "json.h"
 #include "preferences.h"
+#include "sensor_reading.h"
 #include "lcd.h"
 #include "sensor.h"
 #include "response_output_from_firebase.h"
-#include "firebase.h"
-#include "preferences_start.h"
+#include "firebase.h" 
 #include "push_grafik_firebase.h"
 #include "push_sensor_change.h"
 #include "datetime.h"
@@ -114,7 +126,6 @@ void setup()
   pinMode(RelayPompaPhDownPin, OUTPUT);
   pinMode(RelayPompaPpmUpPin, OUTPUT);
   pinMode(floatSensorPin, INPUT);
-
 
   //begin wifi
   WiFi.mode(WIFI_STA);

@@ -1,5 +1,3 @@
-//String childPathSetParameter[11] = {"set_dosing_pump_ppm", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_irigasi" , "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_dosing_pump_ph_down", "set_dosing_pump_ph_up"};
-
 void toOutputResponse(String path, String _data) {
   if (path.indexOf("set_mode_ph") > -1)
   {

@@ -41,7 +41,7 @@ void JsonPreprocessorSchedulePpm(String json)
 
   //data isNotEmpty? start clear old data
     if(json.indexOf("dateFrom") != -1){
-      _indexSchedulePpm = 0;
+      indexSchedulePpm = 0;
       listEpochStartPpm = "";
       listEpochEndPpm = "";
       listPpm ="";      
@@ -51,7 +51,7 @@ void JsonPreprocessorSchedulePpm(String json)
 
   //LOOPING ITERABLE JSON
   for (JsonObject Data : docPpm["data"].as<JsonArray>()) {
-    _indexSchedulePpm ++;
+    indexSchedulePpm ++;
     String dateStart = Data["dateFrom"];
     String dateEnd = Data["dateTo"]; 
     String ppm = Data["ppm"];
@@ -82,7 +82,7 @@ void JsonPreprocessorSchedulePenyiraman(String json)
 
   //data isNotEmpty? start clear old data
     if(json.indexOf("id") != -1){
-      _indexSchedulePenyiraman = 0;
+      indexSchedulePenyiraman = 0;
       listEpochEndDatePenyiraman = "";
       listEpochStartDatePenyiraman = "";     
     }else{
@@ -92,7 +92,7 @@ void JsonPreprocessorSchedulePenyiraman(String json)
   //LOOPING ITERABLE JSON
   for (JsonObject Data : docPenyiraman["data"].as<JsonArray>()) 
   {
-    _indexSchedulePenyiraman ++;
+    indexSchedulePenyiraman ++;
     String TimeOfDayStr = Data["TimeOfDay"];
     String LamaPenyiramanStr = Data["LamaPenyiraman"]; 
     parseSchedulePenyiraman(TimeOfDayStr, LamaPenyiramanStr);
@@ -101,7 +101,7 @@ void JsonPreprocessorSchedulePenyiraman(String json)
   Serial.println("result penyirman");
   Serial.println("start: "+ listEpochStartDatePenyiraman);
   Serial.println("end: "+ listEpochEndDatePenyiraman);
-  Serial.println("index: "+ String(_indexSchedulePenyiraman));
+  Serial.println("index: "+ String(indexSchedulePenyiraman));
   
 
   //  //Proccess to check data and control output

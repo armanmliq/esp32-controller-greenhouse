@@ -18,7 +18,8 @@ bool isToUp, isToDown;
 bool phMixingExcBeginning;
 bool isPhTooHigh, isPhTooLow;
 
-void setupForPhMixing() {
+void setupForPhMixing()
+{
   isPhTooHigh = false;
   isPhTooLow = false;
   phMixingExcBeginning = false;
@@ -139,14 +140,9 @@ void detectForPpmMixing() {
 void readPh() {
   sensPh = random(4, 6);
 }
-void readPpm() {
-  sensPpm = random(800, 1200);
-}
+
 void readHumidity() {
   sensHumidity = random(60, 90);
-}
-void readTempWater() {
-  sensWaterTemp = random(30, 40);
 }
 void readTempRoom() {
   sensTempRoom = random(25, 40);
@@ -158,10 +154,10 @@ void readFloat() {
 
 void readSensor() {
   readFloat();
+  readTempWater();
   readPh();
   readPpm();
   readHumidity();
-  readTempWater();
   readTempRoom();
 }
 void validationTargetPhPpm() {
@@ -191,8 +187,6 @@ void limitActivePenyiraman() {
 }
 void limitActivePhUp() {
   if (pompaPhUpStats) {
-    //    Serial.println("pompaPhUpStatsHIGH");
-    delay(100);
     if (pompaPhUpStats != lastStatsLimitPhUp) {
       lastStatsLimitPhUp = pompaPhUpStats;
       lastMillisPhUp = millis();
@@ -208,8 +202,6 @@ void limitActivePhUp() {
 }
 void limitActivePhDown() {
   if (pompaPhDownStats) {
-    //    Serial.println("pompaPhDownStatsHIGH");
-    delay(100);
     if (pompaPhDownStats != lastStatsLimitPhDown) {
       lastStatsLimitPhDown = pompaPhDownStats;
       lastMillisPhDown = millis();
@@ -227,13 +219,13 @@ void limitActivePhDown() {
 
 void limitActivePpmUp() {
   if (pompaPpmUpStats) {
-    //    Serial.println("pompaPpmUpStatsHIGH");
-    delay(100);
-    if (pompaPpmUpStats != lastStatsLimitPpmUp) {
+    if (pompaPpmUpStats != lastStatsLimitPpmUp)
+    {
       lastStatsLimitPpmUp = pompaPpmUpStats;
       lastMillisPpmUp = millis();
     }
-    if (millis() - lastMillisPpmUp > intervalLimit) {
+    if (millis() - lastMillisPpmUp > intervalLimit)
+    {
       digitalWrite(RelayPompaPpmUpPin, LOW);
       pompaPpmUpStats = false;
       Serial.println("limittt");
@@ -248,19 +240,31 @@ void limitActivePengisian() {
       lastStatsLimitPengisian = pompaPengisianStats;
       lastMillisPengisian = millis();
     }
-    if (millis() - lastMillisPengisian > intervalLimit) {
+    if (millis() - lastMillisPengisian > intervalLimit)
+    {
       digitalWrite(RelayPompaPengisianPin, LOW);
       pompaPengisianStats = false;
-      Serial.println("limittt");
+      Serial.println("limit");
     }
   } else {
     lastMillisPengisian = millis();
   }
 }
+
 void limitAll() {
   limitActivePengisian();
   limitActivePpmUp();
   limitActivePhDown();
   limitActivePhUp();
   limitActivePenyiraman();
+}
+
+void tdsSetup()
+{
+  tds.setPin(TdsSensorPin);
+  tds.TdsFilter(100);
+  tds.setAref(3.3);  //reference voltage pada ADC, default 5.0V Pada Arduino UNO,MEGA,LEONARDO
+  tds.setAdcRange(4096);  //1024 untuk 10bit ADC;4096 untuk 12bit ADC
+  tds.useCalibration(1); //1 >> Menggunakan Mode Kalibrasi, 0 >> Tidak Menggunakan Mode Kalibrasi
+  tds.begin();  //initialization
 }
