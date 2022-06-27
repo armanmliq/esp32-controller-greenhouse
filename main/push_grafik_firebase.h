@@ -3,28 +3,38 @@ FirebaseData fbdoPush;
 FirebaseData fbdoPushParam;
 FirebaseJson json;
 FirebaseJson jsonParam;
-
 bool debug = false;
-
 
 bool isQuerySettedPh        = false;
 bool isQuerySettedPpm       = false;
 bool isQuerySettedHumidity  = false;
 bool isQuerySettedTemp      = false;
-
+bool isQuerySettedAktifitas = false;
 byte savedUpGrafikState;
 byte savedDeleteUpGrafikState;
+String savedSendAktifitas;
 
-void pushFirebase(String _nodePath, String _value,String _MainPath) {
-  String _path = "users/" + uid + "/"+_MainPath;
-  json.set(_nodePath, _value);
-  Serial.println("updating >>> " + _nodePath + " " + String(_value));
+const TickType_t xDelay250ms = pdMS_TO_TICKS(250);
+const TickType_t xDelay100ms = pdMS_TO_TICKS(100);
+
+void pushFirebase(String _nodePath, String _value, String _MainPath) {
+  String _path = "users/" + uid + "/" + _MainPath;
+  _nodePath.indexOf("sensor") != -1 ? json.set(_nodePath, _value) : jsonParam.set(_nodePath, _value);
+  Serial.println("updating >>> " + _path + " " + String(_value));
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
-    Firebase.updateNode(fbdoPush, _path, json);
+    _nodePath.indexOf("sensor") != -1 ? Firebase.updateNode(fbdoPush, _path, json) : Firebase.updateNode(fbdoPush, _path, jsonParam);
   }
 }
+
 void updateGrafik(String _typeSensor, String _value) {
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
+
+    if (_typeSensor == "aktifitas") {
+      if (_value == savedSendAktifitas) {
+        return;
+      }
+      savedSendAktifitas = _value;
+    } 
     FirebaseJson json;
     json.add("ts", (uint32_t)time(nullptr));
     json.add("value", _value);
@@ -37,11 +47,22 @@ void updateGrafik(String _typeSensor, String _value) {
       else if (debug) Serial.println(fbdoPush.errorReason());
   } else {
     if (debug) Serial.println("failed update at wifi disconn");
-  }
+  } 
 }
+
 
 void setQueryRules() {
   if (WiFi.status() == WL_CONNECTED & Firebase.ready()) {
+    if (!isQuerySettedAktifitas)
+    {
+      isQuerySettedAktifitas = true;
+      if (debug) Serial.print("Set query index in database rules..  ");
+      if (Firebase.setQueryIndex(fbdoDelete, "users/" + uid + "/grafik/aktifitas", "ts", "Kg7ULKnG0RSjFugCV96QD2LMNzkEydiTPgpuqAWW"))
+        if (debug) Serial.println( "aktifitas setQuery ok");
+        else
+          isQuerySettedAktifitas = false;
+      if (debug) Serial.println(fbdoDelete.errorReason());
+    }
     if (!isQuerySettedPh)
     {
       isQuerySettedPh = true;
@@ -110,8 +131,8 @@ void setQueryRules() {
 void updateAllGrafik() {
   setQueryRules();
   updateGrafik("ph", String(sensPh));
-  updateGrafik("ppm", String(sensPpm));
-  updateGrafik("humidity", String(sensHumidity));
+  updateGrafik("ppm", String(sensPpm, 0));
+  updateGrafik("humidity", String(sensHumidity, 0));
   updateGrafik("temp", String(sensTempRoom));
   updateGrafik("waterTemp", String(sensTempWater));
 }
@@ -136,6 +157,9 @@ void coreDeleteGrafik() {
     if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/humidity", "ts", deleteGrafikItemAtOnce , deleteGrafikSecondExceedFrom ))
       if (debug) Serial.println("del humidity ok");
       else if (debug) Serial.println(fbdoDelete.errorReason());
+    if (Firebase.deleteNodesByTimestamp(fbdoDelete, "users/" + uid + "/grafik/aktifitas", "ts", deleteGrafikItemAtOnce , deleteGrafikSecondExceedFrom ))
+      if (debug) Serial.println("del aktifitas ok");
+      else if (debug) Serial.println(fbdoDelete.errorReason());
   } else {
     if (debug) Serial.println("avoid delete nodes at wifi disconnect");
   }
@@ -152,6 +176,7 @@ void deleteGrafikDataLastOneDay() {
     }
   }
 }
+
 void updateGrafikToFirebase() {
   if (globalMinute -  savedUpGrafikState >= 1)
   {

@@ -8,28 +8,28 @@ StaticJsonDocument<2048> docPenyiraman;
 void JsonPreprocessorSchedulePpm(String json)
 {
 
-/*
-  String json :
-  
-  {
-  "data": [
+  /*
+    String json :
+
     {
-      "id": "2022-05-29 01:09:35.182323",
-      "dateFrom": "2022-06-03",
-      "dateTo": "2022-06-04",
-      "ppm": "66"
-    },
-    {
-      "id": "2022-05-29 01:16:06.998454",
-      "dateFrom": "2022-06-08",
-      "dateTo": "2022-06-09",
-      "ppm": "58"
+    "data": [
+      {
+        "id": "2022-05-29 01:09:35.182323",
+        "dateFrom": "2022-06-03",
+        "dateTo": "2022-06-04",
+        "ppm": "66"
+      },
+      {
+        "id": "2022-05-29 01:16:06.998454",
+        "dateFrom": "2022-06-08",
+        "dateTo": "2022-06-09",
+        "ppm": "58"
+      }
+    ]
     }
-  ]
-}
-*/
+  */
   //remove unwanted slash incoming data, if not removed deserialization error
-  json.replace("\\","");
+  json.replace("\\", "");
 
   //proccess json and check error
   DeserializationError error = deserializeJson(docPpm, json);
@@ -40,20 +40,20 @@ void JsonPreprocessorSchedulePpm(String json)
   }
 
   //data isNotEmpty? start clear old data
-    if(json.indexOf("dateFrom") != -1){
-      indexSchedulePpm = 0;
-      listEpochStartPpm = "";
-      listEpochEndPpm = "";
-      listPpm ="";      
-    }else{
-      return;
-    }
+  if (json.indexOf("dateFrom") != -1) {
+    indexSchedulePpm = 0;
+    listEpochStartPpm = "";
+    listEpochEndPpm = "";
+    listPpm = "";
+  } else {
+    return;
+  }
 
   //LOOPING ITERABLE JSON
   for (JsonObject Data : docPpm["data"].as<JsonArray>()) {
     indexSchedulePpm ++;
     String dateStart = Data["dateFrom"];
-    String dateEnd = Data["dateTo"]; 
+    String dateEnd = Data["dateTo"];
     String ppm = Data["ppm"];
 
     //parsing and add each element
@@ -61,16 +61,17 @@ void JsonPreprocessorSchedulePpm(String json)
     parseDateEnd(dateEnd);
     parsePpm(ppm);
   }
-  
+
   Serial.println("result ppm");
   //Proccess to check data and control output
   CheckSchedulePpm();
+  setAktifitas("WARNING! REPORT JADWAL NUTRISI -> " + String(indexSchedulePpm) + " item");
 }
 
 void JsonPreprocessorSchedulePenyiraman(String json)
 {
   //remove unwanted slash incoming data, if not removed deserialization error
-  json.replace("\\","");
+  json.replace("\\", "");
 
   //deserializeJson and check error
   DeserializationError error = deserializeJson(docPenyiraman, json);
@@ -81,29 +82,24 @@ void JsonPreprocessorSchedulePenyiraman(String json)
   }
 
   //data isNotEmpty? start clear old data
-    if(json.indexOf("id") != -1){
-      indexSchedulePenyiraman = 0;
-      listEpochEndDatePenyiraman = "";
-      listEpochStartDatePenyiraman = "";     
-    }else{
-      return;
-    }
+  if (json.indexOf("id") != -1) {
+    indexSchedulePenyiraman = 0;
+    listEpochEndDatePenyiraman = "";
+    listEpochStartDatePenyiraman = "";
+  } else {
+    return;
+  }
 
   //LOOPING ITERABLE JSON
-  for (JsonObject Data : docPenyiraman["data"].as<JsonArray>()) 
+  for (JsonObject Data : docPenyiraman["data"].as<JsonArray>())
   {
     indexSchedulePenyiraman ++;
     String TimeOfDayStr = Data["TimeOfDay"];
-    String LamaPenyiramanStr = Data["LamaPenyiraman"]; 
+    String LamaPenyiramanStr = Data["LamaPenyiraman"];
     parseSchedulePenyiraman(TimeOfDayStr, LamaPenyiramanStr);
   }
-  
-  Serial.println("result penyirman");
-  Serial.println("start: "+ listEpochStartDatePenyiraman);
-  Serial.println("end: "+ listEpochEndDatePenyiraman);
-  Serial.println("index: "+ String(indexSchedulePenyiraman));
-  
 
   //  //Proccess to check data and control output
   CheckSchedulePenyiraman();
+  setAktifitas("WARNING! REPORT JADWAL PENYIRAMAN -> " + String(indexSchedulePenyiraman) + " item");
 }

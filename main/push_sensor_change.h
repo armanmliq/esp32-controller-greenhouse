@@ -1,5 +1,15 @@
+String statePump(bool _state) {
+  _state ? "DIHIDUPKAN" : "DIMATIKAN";
+}
+void detectChangeSprayer() {
+  sprayerStats = digitalRead(RelaySprayerPin);
+  if (sprayerStats != savedStatsSprayer) {
+    savedStatsSprayer = sprayerStats;
+    updateSprayerStats = 1;
+  }
+}
 void detectChangeTargetPpm() {
-  if (targetPpm != savedStatsTargetPpm) { 
+  if (targetPpm != savedStatsTargetPpm) {
     savedStatsTargetPpm = targetPpm;
     updateTargetPpmStats = 1;
   }
@@ -71,10 +81,17 @@ void detectChangeWaterTemp() {
     updateWaterTempStats = 1;
   }
 }
-//========================================================================
+void sendStatsSprayer() {
+  if (updateSprayerStats) {
+    updateSprayerStats = false;
+    String _sprayerStats =  sprayerStats ? "HIDUP" : "MATI";
+    pushFirebase("sprayer", _sprayerStats, "sensor_status");
+    pushFirebase("set_sprayer", _sprayerStats, "set_parameter");
+  }
+}
 void sendStatsTargetPpm() {
   if (updateTargetPpmStats) {
-    pushFirebase("set_ppm", String(targetPpm,0), "set_parameter");
+    pushFirebase("set_ppm", String(targetPpm, 0), "set_parameter");
     updateTargetPpmStats = 0;
   }
 }
@@ -90,16 +107,16 @@ void sendStatsPenyiraman() {
 void sendStatsPengisian() {
   if (updatePengisianStats) {
     updatePengisianStats = false;
-    String _pompaStats =  pompaPenyiramanStats ? "HIDUP" : "MATI";
+    String _pompaStats =  pompaPengisianStats ? "HIDUP" : "MATI";
     pushFirebase("pompa_status", _pompaStats, "sensor_status");
     pushFirebase("set_pompa_pengisian", _pompaStats, "set_parameter");
   }
 }
 void sendStatsPhUp() {
   if (updatePhUpStats) {
-    String _pompaStats =  pompaPengisianStats ? "HIDUP" : "MATI";
+    String _pompaStats =  pompaPhUpStats ? "HIDUP" : "MATI";
     pushFirebase("pompaPhUpStatus", _pompaStats,  "sensor_status");
-    pushFirebase("set_dosing_pump_ph_up", _pompaStats, "set_parameter");
+    pushFirebase("set_pompa_ph_up", _pompaStats, "set_parameter");
     updatePhUpStats = false;
   }
 }
@@ -109,22 +126,22 @@ void sendStatsPhDown() {
     updatePhDownStats = false;
     String _pompaStats =  pompaPhDownStats ? "HIDUP" : "MATI";
     pushFirebase("pompaPhDownStatus", _pompaStats, "sensor_status");
-    pushFirebase("set_dosing_pump_ph_down", _pompaStats, "set_parameter");
+    pushFirebase("set_pompa_ph_down", _pompaStats, "set_parameter");
   }
 }
 void sendStatsPpmUp() {
   if (updatePpmUpStats)
   {
-    String _pompaStats =  pompaPhDownStats ? "HIDUP" : "MATI";
-    pushFirebase("pompa_nutrisi_status", _pompaStats,"sensor_status");
-    pushFirebase("set_dosing_pump_ppm", _pompaStats, "set_parameter");
+    String _pompaStats =  pompaPpmUpStats ? "HIDUP" : "MATI";
+    pushFirebase("pompa_nutrisi_status", _pompaStats, "sensor_status");
+    pushFirebase("set_pompa_ppm_up", _pompaStats, "set_parameter");
     updatePpmUpStats = false;
   }
 }
 void sendStatsPh() {
   if (updatePhStats) {
     updatePhStats = false;
-    //("ph", String(sensPh, 1));
+    pushFirebase("ph", String(sensPh, 1), "sensor_status");
   }
 }
 void sendStatsPpm() {
@@ -152,9 +169,16 @@ void sendStatsTempRoom() {
     pushFirebase("temperature", String(sensTempRoom, 1), "sensor_status");
   }
 }
-
+void sendStatsAktifitas() {
+  if (updateAktifitasStats) {
+    updateAktifitasStats = false;
+    updateGrafik("aktifitas", aktifitasStr);
+  }
+}
 
 void sendAllStats() {
+  sendStatsAktifitas();
+  sendStatsSprayer();
   sendStatsTargetPpm();
   sendStatsPenyiraman();
   sendStatsPengisian();
@@ -168,6 +192,7 @@ void sendAllStats() {
   sendStatsTempRoom();
 }
 void detectChangeAllSensor() {
+  detectChangeSprayer();
   detectChangeTargetPpm();
   detectChangePenyiraman();
   detectChangePengisian();

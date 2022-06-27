@@ -2,21 +2,31 @@ void serial() {
   if (Serial.available() > 0)
   {
     char dat = Serial.read();
-    if (dat == 'a')
+    if (dat == 'p')
     {
-      updateAllGrafik();
-      Serial.println("response");
+      float ph = Serial.parseFloat();
+      sensPh = ph;
+      Serial.println("set sensPH " + String(ph));
     }
-
-    if (dat == 'd')
+    if (dat == 'm')
     {
-      Serial.println("delete proccess");
+      float ppm = Serial.parseInt();
+      sensPpm = ppm;
+      Serial.println("set sensPpm " + String(ppm));
+    }
+    if (dat == 'f')
+    {
+      sensFloat = !sensFloat;
+      Serial.println("set sens_float " + String(sensFloat));
+    }
+    if (dat == 'x') {
       coreDeleteGrafik();
     }
-
-    if (dat == 'p') {
-      int _ppm = Serial.parseInt();
-      pushFirebase("set_ppm", String(_ppm),"/set_parameter");
+    if (dat == 'a') {
+      setAktifitas("TEST COMMAND FROM SERIAL");
+    }
+    if (dat == 'b') {
+      setAktifitas("POMPA PENYIRAMAN DIHIDUPKAN");
     }
   }
 }

@@ -3,6 +3,7 @@ Preferences preferences;
 void parsingTargetPpm(String strValue) {
   if (strValue.toFloat() > 0 & strValue.toFloat() < maksPpm) {
     targetPpm = strValue.toFloat();
+    savedStatsTargetPpm = targetPpm;
   }
 }
 void parsingTargetPh(String strValue) {
@@ -12,11 +13,16 @@ void parsingTargetPh(String strValue) {
 }
 void parsingModePh(String strValue) {
   if (strValue == "MANUAL" || strValue == "OTOMATIS") {
-    modePhStr = strValue;
+    if (modePhStr != strValue) {
+      digitalWrite(RelayPompaPhUpPin, LOW);
+      digitalWrite(RelayPompaPhDownPin, LOW);
+      modePhStr = strValue;
+    }
   }
 }
 void parsingModePpm(String strValue) {
   if (strValue == "MANUAL" || strValue == "OTOMATIS") {
+    digitalWrite(RelayPompaPpmUpPin, LOW);
     modePpmStr = strValue;
   }
 }
@@ -50,7 +56,13 @@ void parsingBatasMarginPh(String strValue) {
     batasMarginPh = strValue.toFloat();
   }
 }
-
+void parsingSprayer(String strValue) { 
+  if (strValue == "HIDUP") {
+    digitalWrite(RelaySprayerPin, HIGH);
+  } else {
+    digitalWrite(RelaySprayerPin, LOW);
+  }
+}
 
 void parsingInternalData() {
 
@@ -67,7 +79,9 @@ void parsingInternalData() {
   String _intervalOffPpmStr = preferences.getString("intervalOffPpm");
   String _intervalLimitStr = preferences.getString("intervalLimit");
   String _batasMarginPhStr = preferences.getString("batasMarginPh");
+  String _sprayerStr = preferences.getString("set_sprayer");
 
+  parsingSprayer(_sprayerStr);
   parsingTargetPpm(_targetPpmStr);
   parsingTargetPh(_targetPhStr);
   parsingModePh(_modePhStr);
@@ -96,5 +110,8 @@ void printAllFromPrefs() {
   Serial.println("intervalOffPpmStr: " + String(intervalOffPpm));
   Serial.println("intervalOnPpmStr: " + String(intervalOnPpm));
   Serial.println("batasMarginPh: " + String(batasMarginPh));
+  Serial.println("batasMarginPh: " + String(batasMarginPh));
+  Serial.println("sprayerStr: " + sprayerStats);
   Serial.println("delay 5 sec");
+  delay(5000);
 }

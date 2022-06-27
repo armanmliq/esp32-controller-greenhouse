@@ -12,52 +12,118 @@ String dateStr;
 #include <WiFiUdp.h>
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
-
-void updateGlobalVarTime() {
-  DateTime now = rtc.now();
-  globalSec = now.second();
-  globalMinute = now.minute();
-  globalHour = now.hour();
-  globalMonth = now.month();
-  globalDay = now.day();
-  globalYear = now.year();
-  globalEpoch = now.unixtime();
-  dateStr = String(globalYear) + "/" + String(globalMonth) + "/" + String(globalDay) + " - " + String(globalHour) + ":" + String(globalMinute);
+void deviceBoot() {
+  if (!limitDevice) {
+    if (millis() > 30000) {
+      limitDevice = true;
+      Serial.println("Device Boot");
+      setAktifitas("Device Boot...");
+    }
+  }
 }
-void printStatsPompa()
+void updateGlobalVarTime()
 {
+  //IF RTC WORK READ..
+  if (isRtcConnected) {
+    DateTime now = rtc.now();
+    globalSec = now.second();
+    globalMinute = now.minute();
+    globalHour = now.hour();
+    globalMonth = now.month();
+    globalDay = now.day();
+    globalYear = now.year();
+    globalEpoch = (now.unixtime());
+  } else {
+    //IF RTC NOT WORK READ FROM NTP
+    //Get a time structure
+    globalEpoch = (timeClient.getEpochTime());
+    struct tm *ptm = gmtime ((time_t *)&globalEpoch);
+    globalSec = (timeClient.getSeconds());
+    globalMinute = (timeClient.getMinutes());
+    globalHour = (timeClient.getHours());
+    globalMonth = (ptm->tm_mon);
+    globalDay = (ptm->tm_mday);
+    globalYear = (ptm->tm_year + 1900);
+  }
+
+  dateStr =  String(globalYear) + "/" + String(globalMonth) + "/" + String(globalDay) + " - " + String(globalHour) + ":" + String(globalMinute);
+}
+
+
+
+void debugData() {
+  //readOutputStats
+
   bool phUpStats = digitalRead(RelayPompaPhUpPin);
   bool phDownStats = digitalRead(RelayPompaPhDownPin);
   bool ppmUpStats = digitalRead(RelayPompaPpmUpPin);
   bool penyiramanStats = digitalRead(RelayPompaPenyiramanPin);
   bool pengisianStats = digitalRead(RelayPompaPengisianPin);
-  Serial.println("phUp:" + String(phUpStats) + " phDown:" + String(phDownStats) + " ppmUp:" + String(ppmUpStats) + " penyiraman:" + String(penyiramanStats) + " pengisian:" + String(pengisianStats) + "  epoch:"  + globalEpoch  + "  targetPpm:"  + String(targetPpm) + "  TempWater:"  + String(sensTempWater) + "  sensPpm:"  + String(sensPpm) + "  statsSchPen:"  + dispPenyiramanStr + " statsSchPpm:" + dispPpmStr);
+  bool sprayerStats = digitalRead(RelaySprayerPin);
+
+  Serial.println();
+  String _strData = "";
+  _strData += "sensFloat:";
+  _strData += sensFloat;
+
+  _strData += " sprayer:";
+  _strData += sprayerStats;
+
+  _strData += "  phUp:";
+  _strData += phUpStats;
+
+  _strData += "  phDown:";
+  _strData += phDownStats;
+
+  _strData += " ppmUp:";
+  _strData += ppmUpStats;
+
+  _strData += " penyir:";
+  _strData += penyiramanStats;
+
+  _strData += " pengi:";
+  _strData += pengisianStats;
+
+  _strData += "  epoch:";
+  _strData += globalEpoch;
+
+  _strData += " targetPh:";
+  _strData += targetPh;
+
+  _strData += "  Ph";
+  _strData += sensPh;
+
+  _strData += " targetPpm:";
+  _strData += targetPpm;
+
+  _strData += "  Ppm";
+  _strData += sensPpm;
+
+  _strData += "  \nTempWater";
+  _strData += sensTempWater;
+
+  _strData += "  Humid";
+  _strData += sensHumidity;
+
+  _strData += "  TRoom";
+  _strData += sensTempRoom;
+
+  _strData += "  SchPen";
+  _strData += dispPenyiramanStr;
+
+  _strData += "  SchPpm";
+  _strData += dispPpmStr;
+
+
+  Serial.println();
+  Serial.println(_strData);
 }
-
-
-void digitalClockDisplay() {
-  DateTime now = rtc.now();
-  Serial.print(now.unixtime());
-  Serial.print(" - ");
-  Serial.print(now.day());
-  Serial.print('-');
-  Serial.print(now.month());
-  Serial.print('-');
-  Serial.print(now.year());
-  Serial.print(' ');
-  Serial.print(now.hour());
-  Serial.print(':');
-  Serial.println(String(now.minute()) + " " + String(WiFi.status()));
-}
-
-
 void updateNtp() {
   if (WiFi.status() == WL_CONNECTED)
   {
     //start Time
     timeClient.begin();
     timeClient.update();
-    digitalClockDisplay();
   }
 }
 
@@ -65,12 +131,13 @@ void syncRtc() {
   if (!(time(nullptr) > 1618971013)) {
     return;
   }
-  int dayNtp = day(timeClient.getEpochTime() + offsetGmt);
-  int monthNtp = month(timeClient.getEpochTime() + offsetGmt);
-  int yearNtp = year(timeClient.getEpochTime() + offsetGmt);
-  int hourNtp = hour(timeClient.getEpochTime() + offsetGmt);
-  int secondNtp = second(timeClient.getEpochTime() + offsetGmt);
-  int minuteNtp = minute(timeClient.getEpochTime() + offsetGmt);
+  if (WiFi.status() != 3) return;
+  int dayNtp = day(timeClient.getEpochTime());
+  int monthNtp = month(timeClient.getEpochTime());
+  int yearNtp = year(timeClient.getEpochTime());
+  int hourNtp = hour(timeClient.getEpochTime());
+  int secondNtp = second(timeClient.getEpochTime());
+  int minuteNtp = minute(timeClient.getEpochTime());
   if (yearNtp < 2022) {
     return;
   }
@@ -89,6 +156,7 @@ void eventDayChange() {
 void eventSecondChange()
 {
 
+  ph.calibration(voltage, sensTempWater);
   tds.setTemperature(sensTempWater);  //Masukan Nilai Suhu sebagai Temperature Compensation
   tds.update();  //Proses Perhitungan Nilai TDS, Jangan Memakan Perintah "Delay()" agar tidak mengganggu proses kalkulasi nilai tds
   if (millis() - lastSec >= 1000)
@@ -97,9 +165,10 @@ void eventSecondChange()
     updateGlobalVarTime();
     readSensor();
     displayInfo();
-    printStatsPompa();
-
+    debugData();
+    deviceBoot();
     tickCheckSchedule++;
+
     if (tickCheckSchedule > 5)
     {
       tickCheckSchedule = 0;
@@ -111,7 +180,9 @@ void eventSecondChange()
     if (tickReadSensor > 10)
     {
       tickReadSensor = 0;
+      readStatus = true;
       readSensor();
+      readStatus = false;
     }
 
     tickDisplaySensor ++;
@@ -128,7 +199,8 @@ void eventSecondChange()
     {
       tickDetect = 0;
       Serial.println("detectChangeAllSensor");
-      detectChangeAllSensor();
+      //      detectChangeAllSensor();
+      detectForFilling();
     }
   }
 }

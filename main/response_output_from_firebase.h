@@ -10,12 +10,14 @@ void toOutputResponse(String path, String _data) {
     parsingModePpm(_data);
     setDispIndex(1);
 
-
   } else if (path.indexOf("set_ph") > -1) {
     preferences.putString("targetPh", _data);
     parsingTargetPh(_data);
     setDispIndex(3);
-
+  } else if (path.indexOf("set_sprayer") > -1) {
+    preferences.putString("set_sprayer", _data);
+    parsingSprayer(_data);
+    setDispIndex(2);
 
   } else if (path.indexOf("set_ppm") > -1) {
     preferences.putString("targetPpm", _data);

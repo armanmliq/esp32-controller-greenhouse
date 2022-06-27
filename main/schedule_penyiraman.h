@@ -3,7 +3,7 @@ String listLamaPenyiraman = "";
 String listEpochStartDatePenyiraman = "";
 String listEpochEndDatePenyiraman = "";
 String dispPenyiramanStr;
-
+bool offPenyiramanOne;
 tmElements_t time_penyiraman;
 time_t unix_start_penyiraman;
 time_t unix_end_penyiraman;
@@ -25,7 +25,6 @@ void parseSchedulePenyiraman(String date, String _lamaPenyiraman)
   unix_end_penyiraman = unix_start_penyiraman + (_lamaPenyiraman.toInt() * 60);
   listEpochStartDatePenyiraman += String(unix_start_penyiraman) + ',';
   listEpochEndDatePenyiraman += String(unix_end_penyiraman) + ',';
-
 }
 
 //check given data in range
@@ -38,7 +37,6 @@ bool isInRangePenyiraman(String epochStartDateStr, String epochEndDateStr) {
     return false;
   }
 }
-
 //check if any aktif date, change target ppm
 void CheckSchedulePenyiraman()
 {
@@ -50,10 +48,11 @@ void CheckSchedulePenyiraman()
   }
 
   if (dispPenyiramanStr.indexOf('1')  != -1) {
-    //    Serial.println("==============POMPA ON==================");
+    offPenyiramanOne = false;
     digitalWrite(RelayPompaPenyiramanPin, HIGH);
-  } else {
-    //    Serial.println("==============POMPA OFF==================");
+  }
+  if (!offPenyiramanOne && dispPenyiramanStr.indexOf('1')  == -1) {
+    offPenyiramanOne = true;
     digitalWrite(RelayPompaPenyiramanPin, LOW);
   }
 }

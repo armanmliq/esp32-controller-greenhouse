@@ -5,7 +5,7 @@
 
 unsigned long sendDataPrevMillis = 0;
 String MainPathsetParameter = "/users/" + uid + "/set_parameter/";
-String childPathSetParameter[17] = {"set_batas_margin_ph","set_interval_off_ph","set_interval_off_ppm","set_interval_on_ppm","set_interval_on_ph","set_pompa_ppm_up", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_pompa_ph_down", "set_pompa_ph_up","set_pompa_pengisian"};
+String childPathSetParameter[18] = {"set_batas_margin_ph", "set_interval_off_ph", "set_interval_off_ppm", "set_interval_on_ppm", "set_interval_on_ph", "set_pompa_ppm_up", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_pompa_ph_down", "set_pompa_ph_up", "set_pompa_pengisian", "set_sprayer"};
 
 FirebaseData fbdo;
 FirebaseData streamParameter;
@@ -32,9 +32,9 @@ void streamCallbackParameter(MultiPathStreamData stream)
       } else if (path.indexOf("scheduler_jadwal_penyiraman") > -1) {
         preferences.putString("schPen", _data);
         JsonPreprocessorSchedulePenyiraman(_data);
-      }else{
+      } else {
         //direct proccess no json
-       toOutputResponse(path,_data);        
+        toOutputResponse(path, _data);
       }
 
     }
@@ -49,6 +49,7 @@ void streamTimeoutCallbackParameter(bool timeout)
 }
 
 void begin_stream() {
+  if (WiFi.status() != WL_CONNECTED)return;
   Serial.println("begin_stream");
   if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter))
     Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());

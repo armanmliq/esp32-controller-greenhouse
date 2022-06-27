@@ -27,7 +27,6 @@ void parseDateStart(String date)
 //parsing end date
 void parseDateEnd(String date)
 {
-
   int _day = date.substring(8, 10).toInt();
   int _month = date.substring(5, 7).toInt();
   int _year = date.substring(0, 4).toInt();
@@ -40,7 +39,6 @@ void parseDateEnd(String date)
   unix_start_ppm =  makeTime(time_ppm);
   listEpochEndPpm += String(unix_start_ppm) + ',';
 }
-
 
 //parsing ppm
 void parsePpm(String ppm)
@@ -66,7 +64,6 @@ void CheckSchedulePpm() {
     String epochStart = getValue(listEpochStartPpm, ',', i);
     String epochEnd = getValue(listEpochEndPpm, ',', i);
     String _ppm = getValue(listPpm, ',', i);
-
     if (isInRangePpm(epochStart, epochEnd, _ppm)) {
       targetPpm = _ppm.toFloat();
     }
