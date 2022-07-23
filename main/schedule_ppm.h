@@ -1,15 +1,17 @@
 
-byte _indexSchedulePpm = 0;
+byte indexSchedulePpm = 0;
 tmElements_t time_ppm;  // time elements structure
 time_t unix_start_ppm; // a timestamp
-//comma separated 
+//comma separated
+
 String listEpochStartPpm;
 String listEpochEndPpm;
 String listPpm;
+String dispPpmStr;
 
 //parsing start date
-void parseDateStart(String date) 
-{  
+void parseDateStart(String date)
+{
   int _day = date.substring(8, 10).toInt();
   int _month = date.substring(5, 7).toInt();
   int _year = date.substring(0, 4).toInt();
@@ -20,14 +22,12 @@ void parseDateStart(String date)
   time_ppm.Month = _month;      // months start from 0, so deduct 1
   time_ppm.Year = _year - 1970; // years since 1970, so deduct 1970
   unix_start_ppm =  makeTime(time_ppm);
-  listEpochStartPpm += String(unix_start_ppm)+',';
+  listEpochStartPpm += String(unix_start_ppm) + ',';
 }
-
 
 //parsing end date
-void parseDateEnd(String date) 
-{  
-  
+void parseDateEnd(String date)
+{
   int _day = date.substring(8, 10).toInt();
   int _month = date.substring(5, 7).toInt();
   int _year = date.substring(0, 4).toInt();
@@ -37,41 +37,37 @@ void parseDateEnd(String date)
   time_ppm.Day = _day;
   time_ppm.Month = _month;      // months start from 0, so deduct 1
   time_ppm.Year = _year - 1970; // years since 1970, so deduct 1970
-  unix_start_ppm =  makeTime(time_ppm);
-  listEpochEndPpm += String(unix_start_ppm)+',';
+  unix_start_ppm =  makeTime(time_ppm) + 24*60*60;
+  listEpochEndPpm += String(unix_start_ppm) + ',';
 }
 
-
 //parsing ppm
-void parsePpm(String ppm) 
-{  
-  listPpm += String(ppm)+',';
+void parsePpm(String ppm)
+{
+  listPpm += String(ppm) + ',';
 }
 
 //check given data in range
-bool isInRangePpm(String epochStartDateStr,String epochEndDateStr, String ppm){
-  DateTime now = rtc.now();
+bool isInRangePpm(String epochStartDateStr, String epochEndDateStr, String ppm) {
   unsigned long epochStartDate = epochStartDateStr.toInt();
-   unsigned long epochEndDate = epochEndDateStr.toInt();
-  if(now.unixtime() < epochEndDate && now.unixtime() > epochStartDate){
-    return true;  
-  }else{
+  unsigned long epochEndDate = epochEndDateStr.toInt();
+  if (globalEpoch < epochEndDate && globalEpoch > epochStartDate) {
+    return true;
+  } else {
     return false;
   }
 }
 
 //check if any aktif date, change target ppm
-void CheckSchedulePpm(){
-    Serial.println("checking schedulle ppm");
-    for(int i=0; i< _indexSchedulePpm; i++){
-    String epochStart= getValue(listEpochStartPpm,',', i);
-    String epochEnd= getValue(listEpochEndPpm,',', i);
-    String _ppm = getValue(listPpm,',', i);
-    
-   if(isInRangePpm(epochStart, epochEnd, _ppm)){
-    targetPpm = _ppm.toFloat();
-   }
-    
-    Serial.println(String(i) + ":"+ isInRangePpm(epochStart, epochEnd, _ppm));    
+void CheckSchedulePpm() {
+  dispPpmStr = "";
+  for (int i = 0; i < indexSchedulePpm; i++) {
+    String epochStart = getValue(listEpochStartPpm, ',', i);
+    String epochEnd = getValue(listEpochEndPpm, ',', i);
+    String _ppm = getValue(listPpm, ',', i);
+    if (isInRangePpm(epochStart, epochEnd, _ppm)) {
+      targetPpm = _ppm.toFloat();
+    }
+    dispPpmStr +=  isInRangePpm(epochStart, epochEnd, _ppm);
   }
 }
