@@ -32,7 +32,9 @@ void toOutputResponse(String path, String _data) {
     parsingPompaPhUp(_data);
   } else if (path.indexOf("set_pompa_ppm_up") > -1) {
     parsingPompaPpmUp(_data);
-  } else if (path.indexOf("set_pompa_pengisian") > -1) {
+  } else if (path.indexOf("set_pompa_ppm_down") > -1) {
+    parsingPompaPpmDown(_data);
+  }  else if (path.indexOf("set_pompa_pengisian") > -1) {
     preferences.putString("setPengisian", _data);
     parsingPompaPengisian(_data);
   } else if (path.indexOf("set_batas_margin_ph") > -1) {
@@ -71,8 +73,9 @@ void toOutputResponse(String path, String _data) {
   } else if (path.indexOf("set_interval_notif_oto") > -1) {
     preferences.putString("intervalNotif", _data);
     parsingIntervalNotif(_data);
+  } else if (path.indexOf("set_atur_ph_ppm") > -1) {
+    parsingAturPhPpm(_data);
   }
-
   else {
     Serial.println("wrong path X " + String( path.indexOf("scheduler_jadwal_penyiraman")));
   }
@@ -80,9 +83,10 @@ void toOutputResponse(String path, String _data) {
 void allRelayOff() {
   digitalWrite(RelayPompaPengisianPin, !LOW);
   digitalWrite(RelayPompaPenyiramanPin, !LOW);
+  digitalWrite(RelayValvePenyiramanPin, !LOW);
   digitalWrite(RelayPompaPhUpPin, !LOW);
   digitalWrite(RelayPompaPhDownPin, !LOW);
   digitalWrite(RelayPompaPpmUpPin, !LOW);
   digitalWrite(RelaySprayerPin, !LOW);
   digitalWrite(RelayValvePenyiramanPin, !LOW);
-} 
+}

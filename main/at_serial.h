@@ -3,10 +3,21 @@ void serial() {
   if (Serial.available() > 0)
   {
     char dat = Serial.read();
+    if (dat == 'e') {
+      Firebase.begin(&config, &auth);
+    }
     
+    if (dat == 'i') {
+      setup_firebase();
+    }
+
+    if (dat == 'o') {
+      begin_stream();
+    }
+
     if (dat == 'm') {
-      Serial.println ("set aktifity serial");
-      setAktifitas("test from serial..");
+      digitalWrite(RelayPompaPpmDownPin, !digitalRead(RelayPompaPpmDownPin));
+      Serial.println(digitalRead(RelayPompaPpmDownPin));
     }
 
     //switch float

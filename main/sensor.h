@@ -1,6 +1,5 @@
 bool beginPhMixing;
 bool beginNutrisiMixing;
-bool isFloatTrue, isFloatLimit, isPhMixingBegin, isPpmMixingBegin;
 float batasAtasPh;
 float batasBawahPh;
 bool lastStatsLimitPenyiraman;
@@ -15,16 +14,6 @@ bool lastStatsLimitPhUp;
 unsigned long lastMillisPhUp;
 unsigned long phMillis, ppmMillis;
 bool isToUp, isToDown;
-bool phMixingExcBeginning;
-bool isPhTooHigh, isPhTooLow;
-bool isPpmTooHigh, isPpmTooLow;
-bool savedStateAktifitas;
-bool limSendCalculatePpmInfo;
-bool limSendNotifModePh;
-bool limSendCalculatePhInfo;
-int batasAtasPpm;
-int batasBawahPpm;
-bool limSendNotifTandonHabis;
 
 
 float roundToOneDecPoint(float floatVal) {
@@ -71,7 +60,7 @@ void detectForFilling() {
   if (isFloatTrue & !sensFloat & !isFloatLimit) {
     limSendNotifTandonHabis = false;
     Serial.println("pengisian tandon selesai");
-    setAktifitas("pengisian selesai,\nmematikan pompa tandon"); 
+    setAktifitas("pengisian selesai,\nmematikan pompa tandon");
     isFloatLimit = true;
     digitalWrite(RelayPompaPengisianPin, !LOW);
   }
@@ -209,7 +198,6 @@ void detectForPhMixing() {
   }
 }
 
-bool limSendNotifModePpm;
 void detectForPpmMixing() {
   int batasAmanAtas = 1300;
   int batasAmanBawah = 5;
@@ -288,13 +276,7 @@ void detectForPpmMixing() {
           digitalWrite(RelayPompaPpmDownPin, !LOW);
           return;
         }
-        if (isPompaPpmDownOn) {
-          intervalPpm = intervalOffPpm;
-          digitalWrite(RelayPompaPpmDownPin, !LOW);
-        } else {
-          intervalPpm = intervalOnPpm;
-          digitalWrite(RelayPompaPpmDownPin, !HIGH);
-        }
+        digitalWrite(RelayPompaPpmDownPin, !HIGH);
         digitalWrite(RelayPompaPpmUpPin, !LOW);
       }
     }
@@ -309,6 +291,7 @@ void limitActivePenyiraman() {
     }
     if (millis() - lastMillisPenyiraman > intervalLimit) {
       digitalWrite(RelayPompaPenyiramanPin, !LOW);
+      digitalWrite(RelayValvePenyiramanPin, !LOW);
       pompaPenyiramanStats = false;
       Serial.println("limittt");
     }
@@ -444,6 +427,7 @@ void readPh() {
   float voltAvg;
   for (byte i = 0; i < 100; i++) {
     voltAvg += analogRead(PH_PIN);
+    delayMicroseconds(10);
   }
   voltAvg = voltAvg / 100;
   voltage = voltAvg / 4096.0 * 3300;

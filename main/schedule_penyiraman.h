@@ -62,12 +62,15 @@ void CheckSchedulePenyiraman()
   if (dispPenyiramanState(dispPenyiramanStr)) {
     offPenyiramanOne = false;
     digitalWrite(RelayPompaPenyiramanPin, !HIGH);
+    digitalWrite(RelayValvePenyiramanPin, !HIGH);
+    
   }
 
     //check string if not contain char "1"
   if (!offPenyiramanOne && !dispPenyiramanState(dispPenyiramanStr)) {
     offPenyiramanOne = true;
     digitalWrite(RelayPompaPenyiramanPin, !LOW);
+    digitalWrite(RelayValvePenyiramanPin, !LOW);
   }
 
 }

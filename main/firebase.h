@@ -5,7 +5,7 @@
 
 unsigned long sendDataPrevMillis = 0;
 String MainPathsetParameter = "/users/" + uid + "/set_parameter/";
-String childPathSetParameter[25] = {"set_interval_notif_oto", "set_interval_limit", "set_interval_detect_all", "set_interval_report", "set_interval_cek_ppm", "set_interval_cek_ph", "set_margin_ppm", "set_batas_margin_ph", "set_interval_off_ph", "set_interval_off_ppm", "set_interval_on_ppm", "set_interval_on_ph", "set_pompa_ppm_up", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_pompa_ph_down", "set_pompa_ph_up", "set_pompa_pengisian", "set_sprayer"};
+String childPathSetParameter[27] = {"set_atur_ph_ppm", "set_interval_notif_oto", "set_interval_limit", "set_interval_detect_all", "set_interval_report", "set_interval_cek_ppm", "set_interval_cek_ph", "set_margin_ppm", "set_batas_margin_ph", "set_interval_off_ph", "set_interval_off_ppm", "set_interval_on_ppm", "set_interval_on_ph", "set_pompa_ppm_down", "set_pompa_ppm_up", "set_pompa_penyiraman", "set_mode_ppm", "set_ph", "set_ppm", "set_mode_ph", "scheduler_ppm_str", "scheduler_jadwal_penyiraman", "set_pompa_ph_down", "set_pompa_ph_up", "set_pompa_pengisian", "set_sprayer"};
 
 FirebaseData fbdo;
 FirebaseData streamParameter;
@@ -48,11 +48,10 @@ void streamTimeoutCallbackParameter(bool timeout)
     Serial.printf("error code: %d, reason: %s\n\n", streamParameter.httpCode(), streamParameter.errorReason().c_str());
 }
 void setup_firebase() {
-  config.api_key = API_KEY;
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
-  config.database_url = DATABASE_URL;
-  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+  configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  timeClient.setTimeOffset(7 * 3600);
+  timeClient.begin();
+  timeClient.update();
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
 }
@@ -61,7 +60,4 @@ void begin_stream() {
   if (!Firebase.beginMultiPathStream(streamParameter, MainPathsetParameter))
     Serial.printf("sream begin error, %s\n\n", streamParameter.errorReason().c_str());
   Firebase.setMultiPathStreamCallback(streamParameter, streamCallbackParameter, streamTimeoutCallbackParameter);
-  config.timeout.wifiReconnect = 10 * 1000;
-  config.timeout.rtdbStreamReconnect = 10 * 1000;
-  config.timeout.rtdbStreamError = 10 * 1000;
 }

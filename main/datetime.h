@@ -15,10 +15,6 @@ int tickDetectAll;
 int tickCekPh;
 int tickCekPpm;
 
-#include <NTPClient.h>
-#include <WiFiUdp.h>
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
 void deviceBoot() {
   if (!limitDevice) {
     if (millis() > 30000) {
@@ -28,6 +24,20 @@ void deviceBoot() {
     }
   }
 }
+void controlPompaPengisian() {
+  if (sensFloat) {
+    digitalWrite(RelayPompaPengisianPin, !HIGH);
+  }
+}
+
+void controlPompaAduk() {
+  if (isPhMixingBegin || isPpmMixingBegin) {
+    digitalWrite(RelayPompaAdukPin, !HIGH);
+  } else {
+    digitalWrite(RelayPompaAdukPin, !LOW);
+  }
+}
+
 void updateGlobalVarTime()
 {
   DateTime now = rtc.now();
@@ -256,6 +266,8 @@ void debugData() {
 
   Serial.println();
   Serial.println(_strData);
+  Serial.print("firebaseReady: ");
+  Serial.println(Firebase.ready());
 }
 
 void updateNtp()
@@ -332,6 +344,8 @@ void eventSecondChange()
     tickCekPh++;
     detectForFilling();
     sendFcmNotif();
+    controlPompaAduk();
+    controlPompaPengisian();
 
     if (tickCekPh > (int) intervalCekPh) {
       isPhMixingBegin = true;

@@ -279,6 +279,7 @@ void deleteGrafikDataLastOneDay() {
     //verify unix
     if (time(nullptr) > 1618971013) {
       coreDeleteGrafik();
+      
     } else {
       if (debug) Serial.println("unix not valid");
     }

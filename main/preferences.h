@@ -5,6 +5,20 @@ unsigned long mDetectFirstBootPengisian, mDetectFirstBootPenyiraman, mDetectFirs
 bool isFirstBootPenyiraman, isFirstBootPengisian, isFirstBootSprayer;
 String initialSprayer;
 
+void parsingAturPhPpm(String strValue) {
+  if (!isPpmMixingBegin & modePpmStr == "MANUAL") {
+    Serial.println("atur ppm aktif");
+    isPpmMixingBegin = true;
+    limSendNotifModePpm = false;
+    limSendCalculatePpmInfo = false;
+  }
+  if (!isPhMixingBegin & modePhStr == "MANUAL") {
+    Serial.println("atur ppm aktif");
+    isPhMixingBegin = true;
+    limSendNotifModePh = false;
+    limSendCalculatePhInfo = false;
+  }
+}
 
 void parsingInitialPenyiraman(String strValue) {
   initialPenyiraman = strValue;
@@ -95,15 +109,18 @@ void parsingPompaPenyiraman(String strValue) {
       parsingInitialPenyiraman(preferences.getString("initSiram"));
       if (initialPenyiraman == "HIDUP") {
         digitalWrite(RelayPompaPenyiramanPin, !HIGH);
+        digitalWrite(RelayValvePenyiramanPin, !HIGH);
       }
     } else {
       preferences.putString("initSiram", "HIDUP");
       digitalWrite(RelayPompaPenyiramanPin, !HIGH);
+      digitalWrite(RelayValvePenyiramanPin, !HIGH);
     }
   } else {
     preferences.putString("initSiram", "MATI");
     savedStatsPenyiraman = 0;
     digitalWrite(RelayPompaPenyiramanPin, !LOW);
+    digitalWrite(RelayValvePenyiramanPin, !LOW);
   }
 }
 
@@ -226,6 +243,16 @@ void parsingPompaPhDown(String strValue) {
       digitalWrite(RelayPompaPhDownPin, !HIGH);
     } else {
       digitalWrite(RelayPompaPhDownPin, !LOW);
+    }
+  }
+}
+
+void parsingPompaPpmDown(String strValue) {
+  if (modePpmStr == "MANUAL") {
+    if (strValue == "HIDUP") {
+      digitalWrite(RelayPompaPpmDownPin, !HIGH);
+    } else {
+      digitalWrite(RelayPompaPpmDownPin, !LOW);
     }
   }
 }

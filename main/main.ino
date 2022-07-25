@@ -14,12 +14,20 @@ String aktivitasPh, aktivitasPpm;
 String body = "Pompa tandon dimatikan";
 String title = "Pengisian air baku selesai";
 
-
 #define WIFI_SSID "AMI"
 #define WIFI_PASSWORD "admin.admin"
 
 //#define WIFI_SSID "AQILA"
 //#define WIFI_PASSWORD "balabala"
+
+
+
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP);
+
+
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -101,6 +109,18 @@ unsigned long maksIntervalLimit = 1000 * 60 * 120; // 120 minute
 unsigned long limitDecreasePpm;
 unsigned long deleteGrafikSecondExceedFrom = 2 * 24 * 3600;
 
+bool phMixingExcBeginning;
+bool isPhTooHigh, isPhTooLow;
+bool isPpmTooHigh, isPpmTooLow;
+bool savedStateAktifitas;
+bool limSendCalculatePpmInfo;
+bool limSendNotifModePh;
+bool limSendCalculatePhInfo;
+int batasAtasPpm;
+int batasBawahPpm;
+bool limSendNotifTandonHabis;
+bool limSendNotifModePpm;
+
 float intervalCekPpm = 60 * 20; // 20 menit
 float intervalCekPh = 60 * 20; // 20 menit
 float intervalDetectAll = 60 * 2; // 2 menit
@@ -120,10 +140,10 @@ byte RelayPompaPhDownPin = 25;
 byte RelayPompaPpmUpPin = 19;
 byte RelayPompaPenyiramanPin = 18;
 byte RelayPompaPengisianPin = 15;
-byte RelaySprayerPin = 14;
+byte RelaySprayerPin = 33;
+byte RelayPompaAdukPin = 14;
 byte RelayValvePenyiramanPin = 13;
-byte RelayPompaPpmDownPin = 23;
-
+byte RelayPompaPpmDownPin = 32;
 byte floatSensorPin = 39;
 
 float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp, savedStatsTargetPpm;
@@ -134,6 +154,8 @@ bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats, pom
 String aktifitasStr;
 bool RelayPompaPenyiraman, RelayPhUp, RelayPhDown, RelayPpm, RelaySprayer;
 byte sensFloat;
+
+bool isFloatTrue, isFloatLimit, isPhMixingBegin, isPpmMixingBegin;
 
 String myData = "";
 bool savedStatsPenyiraman, penyiramanStats, updatePenyiramanStats;
@@ -195,7 +217,7 @@ TaskHandle_t TaskHandle_4;
 #include "at_serial.h"
 
 #include <esp_task_wdt.h>
-#define WDT_TIMEOUT 60
+#define WDT_TIMEOUT 120
 
 void setup()
 {
@@ -232,9 +254,9 @@ void setup()
   pinMode(RelaySprayerPin, OUTPUT);
   pinMode(RelayValvePenyiramanPin, OUTPUT);
   pinMode(RelayPompaPpmDownPin, OUTPUT);
+  pinMode(RelayPompaAdukPin, OUTPUT);
   pinMode(floatSensorPin, INPUT_PULLUP);
   allRelayOff();
-
 
   //begin wifi
   WiFi.disconnect();
@@ -262,22 +284,25 @@ void setup()
   while (WiFi.status() != WL_CONNECTED & millis() - timeout_wifi_m < 20000) {
     esp_task_wdt_reset();
   }
-
-
-
   if (WiFi.status() == WL_CONNECTED) {
     lcd.setCursor(0, 3);
     lcd.print("Connected..");
-
   } else {
     lcd.setCursor(0, 3);
     lcd.print("NOT CONNECTED");
   }
 
-  configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");
-  timeClient.setTimeOffset(7 * 3600);
-  timeClient.begin();
-  timeClient.update();
+  config.api_key = API_KEY;
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
+  config.database_url = DATABASE_URL;
+  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+  config.timeout.serverResponse = 10 * 1000;
+  config.timeout.rtdbKeepAlive = 45 * 1000;
+  config.timeout.rtdbStreamReconnect = 1 * 1000;
+  config.timeout.rtdbStreamError = 3 * 1000;
+
+
   setup_firebase();
 #if defined(ESP8266)
   stream.setBSSLBufferSize(2048 , 512 );

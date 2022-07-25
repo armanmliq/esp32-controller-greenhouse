@@ -78,7 +78,7 @@ void JsonPreprocessorSchedulePenyiraman(String json)
   //remove unwanted slash incoming data, if not removed deserialization error
   json.replace("\\", "");
 
-  
+
   //deserializeJson and check error
   DeserializationError error = deserializeJson(docPenyiraman, json);
   if (error) {
@@ -86,7 +86,7 @@ void JsonPreprocessorSchedulePenyiraman(String json)
     Serial.println(error.c_str());
     return;
   }
-  
+
   //data isNotEmpty? start clear old data
   if (json.indexOf("id") != -1) {
     indexSchedulePenyiraman = 0;
@@ -97,9 +97,10 @@ void JsonPreprocessorSchedulePenyiraman(String json)
     dispPenyiramanStr = "";
     indexSchedulePenyiraman = 0;
     digitalWrite(RelayPompaPenyiramanPin, !LOW);
+    digitalWrite(RelayValvePenyiramanPin, !LOW);
     return;
   }
-  
+
   //LOOPING ITERABLE JSON
   for (JsonObject Data : docPenyiraman["data"].as<JsonArray>())
   {
@@ -108,11 +109,11 @@ void JsonPreprocessorSchedulePenyiraman(String json)
     String LamaPenyiramanStr = Data["LamaPenyiraman"];
     parseSchedulePenyiraman(TimeOfDayStr, LamaPenyiramanStr);
   }
-  
+
   //  //Proccess to check data and control output
   CheckSchedulePenyiraman();
- 
-  //send info 
+
+  //send info
   if (millis() > 30000) {
     setAktifitas("menyimpan jadwal penyiraman -> " + String(indexSchedulePenyiraman) + " item");
   }
