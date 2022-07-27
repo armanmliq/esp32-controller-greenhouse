@@ -17,6 +17,14 @@ String statePump(bool _state) {
 //  updatePengisianStats
 //  updatePhUpStats
 //  updatePhDownStats
+
+void detectChangePpmDown() {
+  pompaPpmDownStats = !digitalRead(RelayPompaPpmDownPin);
+  if (pompaPpmDownStats != savedStatsPpmDown) {
+    savedStatsPpmDown = pompaPpmDownStats;
+    updatePpmDownStats  = true;
+  }
+}
 void detectChangeSprayer() {
   sprayerStats = !digitalRead(RelaySprayerPin);
   if (sprayerStats != savedStatsSprayer) {
@@ -183,10 +191,18 @@ void sendStatsPpmUp() {
   if (updatePpmUpStats)
   {
     updatePpmUpStats = false;
-    //    pushFirebase("pompa_nutrisi_status", statePump(pompaPpmUpStats), "sensor_status");
     pushFirebase("set_pompa_ppm_up", statePump(pompaPpmUpStats), "set_parameter");
   }
 }
+
+void sendStatsPpmDown() {
+  if (updatePpmDownStats)
+  {
+    updatePpmDownStats = false;
+    pushFirebase("set_pompa_ppm_down", statePump(pompaPpmDownStats), "set_parameter");
+  }
+}
+
 void sendStatsPh() {
   if (updatePhStats) {
     updatePhStats = false;
@@ -246,6 +262,7 @@ void sendAllStats() {
   sendStatsPhUp();
   sendStatsPhDown();
   sendStatsPpmUp();
+  sendStatsPpmDown();
 }
 
 void detectChangeAllSensor() {
@@ -256,6 +273,7 @@ void detectChangeAllSensor() {
   //  detectChangePhDown();
   //  detectChangePpmUp();
 
+  detectChangePpmDown();
   detectChangeTargetPpm();
   detectChangePh();
   detectChangePpm();

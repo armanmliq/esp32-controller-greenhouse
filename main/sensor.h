@@ -16,6 +16,7 @@ unsigned long phMillis, ppmMillis;
 bool isToUp, isToDown;
 
 
+
 float roundToOneDecPoint(float floatVal) {
   float floatOnePoint;
   long val;
@@ -47,23 +48,33 @@ void setupSht20() {
 void detectForFilling() {
   if (sensFloat & !limSendNotifTandonHabis) {
     limSendNotifTandonHabis = true;
-    Serial.println("air tandon habis, pompa tandon dihidupkan");
-    setAktifitas("warning! air tandon habis,\npompa tandon dihidupkan");
+    Serial.println("air tank habis, pompa tandon dihidupkan");
+    setAktifitas("warning! air tank habis,\npompa tandon dihidupkan");
     digitalWrite(RelayPompaPengisianPin, !HIGH);
     isFloatTrue = true;
     isFloatLimit = false;
     isPhMixingBegin = false;
     isPhTooHigh = false;
     isPhTooLow = false;
-    //    dispActivity("pompa tandon on");
   }
   if (isFloatTrue & !sensFloat & !isFloatLimit) {
     limSendNotifTandonHabis = false;
-    Serial.println("pengisian tandon selesai");
-    setAktifitas("pengisian selesai,\nmematikan pompa tandon");
+    setAktifitas("pengisian air baku selesai,\nmematikan pompa tandon");
+    enableCheckingPh();
+    enableCheckingPpm();
     isFloatLimit = true;
     digitalWrite(RelayPompaPengisianPin, !LOW);
   }
+}
+void checkPh() {
+  isPhMixingBegin = false;
+  isPhTooHigh = false;
+  isPhTooLow = false;
+}
+void checkPpm() {
+  isPpmMixingBegin = false;
+  isPpmTooHigh = false;
+  isPpmTooLow = false;
 }
 
 void ppmTooLowOrHigh() {
@@ -117,8 +128,8 @@ void detectForPhMixing() {
     if (!limSendNotifModePh & isPhNormal) {
       limSendNotifModePh = true;
       if (modePhStr != "OTOMATIS") {
-        Serial.println("skip atur ph pada mode manual..");
-        setAktifitas("skip atur ph pada mode manual..");
+        Serial.println("skip atur ph pada mode manual");
+        setAktifitas("skip atur ph pada mode manual");
         return;
       } else {
         limSendCalculatePhInfo = false;
@@ -162,6 +173,7 @@ void detectForPhMixing() {
           aktivitasPh = "atur ph selesai";
           setAktifitas("ATUR PH KE " + String(targetPh) + " SELESAI");
           Serial.println("ATUR PH KE " + String(targetPh) + " SELESAI");
+          updateGrafik("ph", String(sensPh, 1));
           isPhMixingBegin = false;
           digitalWrite(RelayPompaPhUpPin, !LOW);
           return;
@@ -181,6 +193,7 @@ void detectForPhMixing() {
           limSendCalculatePhInfo = false;
           aktivitasPh = "atur ph selesai";
           Serial.println("ATUR PH KE " + String(targetPh) + " SELESAI");
+          updateGrafik("ph", String(sensPh, 1));
           setAktifitas("ATUR PH KE " + String(targetPh) + " SELESAI");
           isPhMixingBegin = false;
           digitalWrite(RelayPompaPhDownPin, !LOW);
@@ -221,8 +234,8 @@ void detectForPpmMixing() {
     if (!limSendNotifModePpm & isPpmNormal) {
       limSendNotifModePpm = true;
       if (modePpmStr != "OTOMATIS") {
-        Serial.println("skip atur ppm pada mode manual..");
-        setAktifitas("skip atur ppm pada mode manual..");
+        Serial.println("skip atur ppm pada mode manual");
+        setAktifitas("skip atur ppm pada mode manual");
         return;
       } else {
         limSendCalculatePpmInfo = false;
@@ -252,6 +265,7 @@ void detectForPpmMixing() {
           aktivitasPpm = "atur ppm selesai";
           setAktifitas("ATUR PPM KE " + String(targetPpm, 0) + " SELESAI");
           Serial.println("ATUR PPM KE " + String(targetPpm, 0) + " SELESAI");
+          updateGrafik("ppm", String(sensPpm, 0));
           isPpmMixingBegin = false;
           digitalWrite(RelayPompaPpmUpPin, !LOW);
           return;
@@ -272,6 +286,7 @@ void detectForPpmMixing() {
           aktivitasPpm = "atur ppm selesai";
           Serial.println("atur ppm KE " + String(targetPpm, 0) + " SELESAI");
           setAktifitas("atur ppm KE " + String(targetPpm, 0) + " SELESAI");
+          updateGrafik("ppm", String(sensPpm, 0));
           isPpmMixingBegin = false;
           digitalWrite(RelayPompaPpmDownPin, !LOW);
           return;

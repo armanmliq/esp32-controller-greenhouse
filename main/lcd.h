@@ -47,7 +47,7 @@ void displayInfo() {
   if (tick >= updateRate) {
     tick = 0;
     dispIndex++;
-    if (dispIndex >= 6) dispIndex = 0;
+    if (dispIndex >= 7) dispIndex = 0;
   }
 
   switch (dispIndex) {
@@ -75,6 +75,7 @@ void displayInfo() {
       lcd.setCursor(0, 3);
       lcd.print("SET-PH:" + String(targetPh, 1) + " ");
       break;
+
     case 4:
       lcd.setCursor(0, 3);
       lcd.print("                    ");
@@ -86,6 +87,16 @@ void displayInfo() {
       lcd.print("                    ");
       lcd.setCursor(0, 3);
       lcd.print(aktivitasPpm);
+      break;
+    case 6:
+      lcd.setCursor(0, 3);
+      lcd.print("                    ");
+      lcd.setCursor(0, 3);
+      if (internetStats) {
+        lcd.print("internet ok");
+      } else {
+        lcd.print("internet failed");
+      }
       break;
   }
 }

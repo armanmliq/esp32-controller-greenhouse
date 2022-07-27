@@ -4,9 +4,9 @@ void serial() {
   {
     char dat = Serial.read();
     if (dat == 'e') {
-      Firebase.begin(&config, &auth);
+      updateAllGrafik();
     }
-    
+
     if (dat == 'i') {
       setup_firebase();
     }
@@ -29,14 +29,14 @@ void serial() {
     if (dat == 'q') {
       modeDummyPh = !modeDummyPh;
       dummyPh = Serial.parseFloat();
-      Serial.println("dummy ph :" + String(dummyPh));
+      Serial.println("DUMMY PH :" + String(dummyPh));
     }
 
     //dummy nilai ppm
     if (dat == 'r') {
       modeDummyPpm = !modeDummyPpm;
       dummyPpm = Serial.parseFloat();
-      Serial.println("dummy ppm :" + String(dummyPpm));
+      Serial.println("DUMMY PPM :" + String(dummyPpm));
     }
 
     //aktifkan pengecekan ph

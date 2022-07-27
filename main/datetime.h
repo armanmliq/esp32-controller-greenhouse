@@ -266,8 +266,6 @@ void debugData() {
 
   Serial.println();
   Serial.println(_strData);
-  Serial.print("firebaseReady: ");
-  Serial.println(Firebase.ready());
 }
 
 void updateNtp()
@@ -309,13 +307,12 @@ void eventHourChange()
   if (globalHour != savedHour)
   {
     savedHour = globalHour;
+    updateAllGrafik();
     if (!isRtcConnected) {
       updateNtp();
-      updateAllGrafik();
     }
   }
 }
-
 
 void eventSecondChange()
 {
@@ -327,7 +324,6 @@ void eventSecondChange()
     lastSec = millis();
     displayTime();
     updateGlobalVarTime();
-    readSensor();
     displayInfo();
     debugData();
     deviceBoot();
@@ -368,13 +364,10 @@ void eventSecondChange()
     }
 
     if (tickSendReport > intervalSendReport) {
-      //      Serial.println(">> REPORT");
       tickSendReport = 0;
     }
 
-
-
-    if (tickReadSHT20 > 100)
+    if (tickReadSHT20 > 20)
     {
       vTaskResume(TaskHandle_2);
       tickReadSHT20 = 0;
@@ -411,34 +404,17 @@ void eventSecondChange()
       tickDetect = 0;
       detectChangePenyiraman();
       detectChangePengisian();
-
       //update ph pump stats
       if (!isPhMixingBegin) {
         detectChangePhUp();
         detectChangePhDown();
       }
-
       //update ppm pump stats
       if (!isPpmMixingBegin) {
         detectChangePpmUp();
       }
-
       //update target value
       detectChangeTargetPpm();
-
     }
   }
-}
-
-void enableCheckingPh() {
-  isPhMixingBegin = true;
-  limSendNotifModePh = false;
-  limSendCalculatePhInfo = false;
-  Serial.println("enable check ph");
-}
-void enableCheckingPpm() {
-  Serial.println("enable check ppm");
-  isPpmMixingBegin = !isPpmMixingBegin;
-  limSendNotifModePpm = false;
-  limSendCalculatePpmInfo = false;
 }

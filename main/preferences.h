@@ -5,18 +5,31 @@ unsigned long mDetectFirstBootPengisian, mDetectFirstBootPenyiraman, mDetectFirs
 bool isFirstBootPenyiraman, isFirstBootPengisian, isFirstBootSprayer;
 String initialSprayer;
 
+void enableCheckingPh() {
+  isPhMixingBegin = true;
+  limSendNotifModePh = false;
+  limSendCalculatePhInfo = false;
+  isPhTooHigh = false;
+  isPhTooLow = false;
+  Serial.println("enable check ph");
+}
+
+void enableCheckingPpm() {
+  Serial.println("enable check ppm");
+  isPpmMixingBegin = !isPpmMixingBegin;
+  limSendNotifModePpm = false;
+  limSendCalculatePpmInfo = false;
+  isPpmTooHigh = false;
+  isPpmTooLow = false;
+  Serial.println("enable check ppm");
+}
+
 void parsingAturPhPpm(String strValue) {
-  if (!isPpmMixingBegin & modePpmStr == "MANUAL") {
-    Serial.println("atur ppm aktif");
-    isPpmMixingBegin = true;
-    limSendNotifModePpm = false;
-    limSendCalculatePpmInfo = false;
+  if (!isPpmMixingBegin & modePpmStr == "OTOMATIS") {
+    enableCheckingPpm();
   }
-  if (!isPhMixingBegin & modePhStr == "MANUAL") {
-    Serial.println("atur ppm aktif");
-    isPhMixingBegin = true;
-    limSendNotifModePh = false;
-    limSendCalculatePhInfo = false;
+  if (!isPhMixingBegin & modePhStr == "OTOMATIS") {
+    enableCheckingPh();
   }
 }
 

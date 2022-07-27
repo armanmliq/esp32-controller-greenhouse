@@ -20,14 +20,10 @@ String title = "Pengisian air baku selesai";
 //#define WIFI_SSID "AQILA"
 //#define WIFI_PASSWORD "balabala"
 
-
-
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
-
-
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -146,11 +142,12 @@ byte RelayValvePenyiramanPin = 13;
 byte RelayPompaPpmDownPin = 32;
 byte floatSensorPin = 39;
 
-float savedStatsPh, savedStatsPpm, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp, savedStatsTargetPpm;
-bool savedStatsPengisian, savedStatsPpmUp, savedStatsPhUp, savedStatsPhDown = true;
+float savedStatsPpm, savedStatsPh, savedStatsHumidity, savedStatsTempRoom, savedStatsWaterTemp, savedStatsTargetPpm;
+bool savedStatsPengisian, savedStatsPpmDown, savedStatsPpmUp, savedStatsPhUp, savedStatsPhDown = true;
 bool sprayerStats = true;
 bool updatePengisianStats, updatePpmStats, updatePhStats, updateHumidityStats, updateWaterTempStats, updateTempRoomStats, updatePpmUpStats, updatePhUpStats, updatePhDownStats, updateTargetPpmStats, updateAktifitasStats  = true;
 bool pompaPhUpStats, pompaPpmUpStats, pompaPhDownStats, pompaPengisianStats, pompaPenyiramanStats, targetPpmStats;
+bool updatePpmDownStats, pompaPpmDownStats;
 String aktifitasStr;
 bool RelayPompaPenyiraman, RelayPhUp, RelayPhDown, RelayPpm, RelaySprayer;
 byte sensFloat;
@@ -327,6 +324,7 @@ void setup()
 void loop()
 {
   esp_task_wdt_reset();
+  Firebase.ready();
   limitAll();
   eventDayChange();
   eventHourChange();
